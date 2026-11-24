@@ -19,8 +19,9 @@ const blocked = () => G.pending || G.live || G.phone != null || G.draft || G.rev
 /* ---------- save ---------- */
 const Store = {
   key: 'fo30-current', db: null, uid: null, busy: false, dirty: false, timer: 0, careers: {},
-  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-  put(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+  pre() { return (window.FO_HOST && FO_HOST.prefix) || ''; },
+  get(k) { try { return localStorage.getItem(this.pre() + k); } catch (e) { return null; } },
+  put(k, v) { try { localStorage.setItem(this.pre() + k, v); return true; } catch (e) { return false; } },
   local() { return this.get(this.key); },
   index() { try { return JSON.parse(this.get('fo30-index') || '{}'); } catch (e) { return {}; } },
   meta() { const t = G.teams[G.me], h = G.history[G.history.length - 1]; return { team: G.me, at: G.savedAt || 0, gm: G.gm, year: G.year, phase: G.phase, rec: G.phase === 'offseason' ? (h ? `${h.w}-${h.l}` : '') : `${t.w}-${t.l}`, titles: G.titles || 0 }; },
@@ -36,7 +37,7 @@ const Store = {
       this.busy = true;
       try {
         const body = await this.pack(json);
-        if (body.length < 250000) { await this.db.doc(`data/users/${this.uid}/c_${G.me}`).set({ json: body, at: meta.at }); this.careers[G.me] = meta; await this.db.doc(`data/users/${this.uid}/index`).set({ careers: this.careers, current: G.me, at: meta.at }); UI.saved = 'Saved to your account'; }
+        if (body.length < (window.FO_HOST ? 1400000 : 250000)) { await this.db.doc(`data/users/${this.uid}/c_${G.me}`).set({ json: body, at: meta.at }); this.careers[G.me] = meta; await this.db.doc(`data/users/${this.uid}/index`).set({ careers: this.careers, current: G.me, at: meta.at }); UI.saved = window.FO_HOST ? FO_HOST.status() : 'Saved to your account'; }
       } catch (e) { /* the browser copy still holds the save */ }
       this.busy = false; if (this.dirty) { this.dirty = false; this.touch(); }
     }
@@ -65,9 +66,14 @@ const Store = {
   },
   async cloud() {
     try {
-      if (!window.claude || !window.claude.use) return;
-      const [db, user] = await Promise.all([claude.use('db'), claude.use('user')]);
-      if (!db || !user) return; const uid = await user.id(); if (!uid) return; this.db = db; this.uid = uid;
+      let db, uid;
+      if (window.FO_HOST) { const h = await FO_HOST.connect(); if (!h) return; db = h.db; uid = h.uid; this.acct = h.label; }
+      else {
+        if (!window.claude || !window.claude.use) return;
+        const [d, user] = await Promise.all([claude.use('db'), claude.use('user')]);
+        if (!d || !user) return; db = d; uid = await user.id(); if (!uid) return;
+      }
+      this.db = db; this.uid = uid;
       const ix = await db.doc(`data/users/${uid}/index`).get(), d = ix.exists ? ix.data() : null;
       this.careers = (d && d.careers) || {};
       const cur = d && d.current, m = cur && this.careers[cur];
@@ -370,7 +376,7 @@ function newDlg() {
   <label class="field">Your name on the door<input id="gmname" type="text" maxlength="28" value="${esc(UI.newName || '')}" placeholder="Rookie GM"></label>
   <div class="lbl" style="margin:0">Who signs your checks?</div><div style="display:flex;flex-direction:column;gap:5px">${Object.entries(OWNERS).map(([k, o]) => `<button class="asset ${own === k ? 'on' : ''}" style="grid-template-columns:minmax(0,1fr) auto" data-a="pickOwner" data-k="${k}"><span style="white-space:normal"><b>${o.name}</b><br><small>${o.blurb}</small></span><b>$${o.cap}M</b></button>`).join('')}</div>
   <div class="row2"><button class="btn go" data-a="start">Take the ${esc(nick)} job</button>${!UI.dummy && !G.fired ? '<button class="btn" data-a="closeNew">Back to my career</button>' : ''}</div>
-  <p class="note">${Store.uid ? 'Careers save to your Claude account, one per club, so you can pick up on any device.' : 'Careers save in this browser, one per club.'}</p></div>`;
+  <p class="note">${Store.uid ? `Careers save to ${esc(Store.acct || 'your Claude account')}, one per club, so you can pick up on any device.` : 'Careers save in this browser, one per club.'}</p></div>`;
 }
 function phoneDlg() {
   const c = PHONE_CARDS[G.phone];
@@ -516,4 +522,4 @@ function start(hotData) {
   render(); Store.cloud();
 }
 window.claude?.hot?.snapshot?.(() => ({ save: G ? serialize() : null }));
-if (window.claude?.hot?.ready) window.claude.hot.ready(start); else start(window.claude?.hot?.data ?? {});
+if (window.FO_HOST) FO_HOST.ready(start); else if (window.claude?.hot?.ready) window.claude.hot.ready(start); else start(window.claude?.hot?.data ?? {});

@@ -118,16 +118,44 @@ function adj(fx) {
 /* ---------- roster math ---------- */
 const active = () => roster().filter(p => p.level === 'MLB' && !p.inj);
 const fortyMan = () => roster().filter(p => p.level !== 'FARM');
+/* Moving a player off their main position costs rating points. Moves down the
+   defensive spectrum (SS to 2B or 3B, CF to a corner) are easy; moves up are hard.
+   Good fielders lose less, poor fielders more. Positions a player has really
+   played (alts) cost almost nothing, and 20 starts somewhere new (40 at catcher)
+   make it one of their positions. */
+const POS_MOVE = {
+  SS: { '2B': 2, '3B': 3, '1B': 5, LF: 6, RF: 6, CF: 7 },
+  '2B': { SS: 6, '3B': 4, '1B': 4, LF: 6, RF: 6, CF: 8 },
+  '3B': { '1B': 2, '2B': 5, SS: 7, LF: 5, RF: 5, CF: 9 },
+  '1B': { '3B': 8, LF: 6, RF: 6, '2B': 10, SS: 14, CF: 12 },
+  CF: { LF: 1, RF: 2, '1B': 6, '2B': 9, '3B': 9, SS: 12 },
+  LF: { RF: 3, CF: 6, '1B': 4, '3B': 9, '2B': 10, SS: 14 },
+  RF: { LF: 2, CF: 6, '1B': 4, '3B': 8, '2B': 10, SS: 14 },
+  C: { '1B': 5, '3B': 8, LF: 8, RF: 8, '2B': 11, CF: 12, SS: 14 },
+  DH: { '1B': 6, LF: 8, RF: 8, '3B': 12, '2B': 14, CF: 16, SS: 18 }
+};
+function posPen(p, pos) {
+  if (!p || isPit(p)) return p && p.pos === pos ? 0 : 50;
+  if (p.pos === pos) return 0;
+  if (pos === 'DH') return 2;
+  const f = clamp(p.fld || 50, 20, 80);
+  if ((p.alts || []).includes(pos)) return f >= 55 ? 0 : f >= 35 ? 1 : 2;
+  if (pos === 'C') return 30;
+  const base = (POS_MOVE[p.pos] || POS_MOVE.DH)[pos] ?? 12;
+  return clamp(Math.round(base * (1 + (50 - f) / 60)), 1, 25);
+}
+function posFit(p, pos) { const n = posPen(p, pos); return p.pos === pos ? 'main' : (p.alts || []).includes(pos) ? 'alt' : n <= 4 ? 'easy' : n <= 9 ? 'stretch' : 'bad'; }
 function effOvr(p, pos) {
   if (!p) return 20;
-  if (p.pos === pos || (p.alts || []).includes(pos)) return p.ovr;
-  if (isPit(p)) return 20;
-  if (pos === 'DH') return p.ovr - 2;
-  if (pos === 'C') return p.ovr - 30;
-  if (p.pos === 'C') return p.ovr - 10;
-  const groups = [['LF', 'CF', 'RF'], ['2B', 'SS', '3B'], ['1B', '3B'], ['1B', 'LF', 'RF']];
-  if (groups.some(g => g.includes(pos) && g.includes(p.pos))) return p.ovr - 4;
-  return p.ovr - 9;
+  if (isPit(p)) return p.pos === pos ? p.ovr : 20;
+  return p.ovr - posPen(p, pos);
+}
+function learnPositions() {
+  gameLineup().forEach(({ p, pos }) => {
+    if (!p || isPit(p) || pos === 'DH' || pos === p.pos || (p.alts || []).includes(pos)) return;
+    p.pg = p.pg || {}; p.pg[pos] = (p.pg[pos] || 0) + 1;
+    if (p.pg[pos] >= (pos === 'C' ? 40 : 20)) { p.alts = [...(p.alts || []), pos]; delete p.pg[pos]; addNews(`${p.name} has started enough games at ${pos} to call it a second position.`); }
+  });
 }
 function gameLineup() {
   const used = new Set(), res = [];
@@ -363,6 +391,7 @@ function simDay() {
   finishMetsGame(g); return endDay();
 }
 function endDay() {
+  learnPositions();
   G.day++;
   if (ME === 'BOS' && G.day === PATRIOTS_DAY) { adj({ fans: 3 }); G.buff = 1; G.buffG = 3; setBack('MARATHON MONDAY', 'An 11 a.m. first pitch on Patriots\' Day, with marathoners running through Kenmore Square during the game.', 'Patriots\' Day'); addNews('Patriots\' Day: the Red Sox played the morning game. The Fens were packed by 10.'); }
   if (G.day === ASG_DAY) { const b = topPerformer(); addNews(`All-Star break. ${b ? b.name + ' represents ' + TEAM.city + '.' : 'Nobody from ' + TEAM.city + ' made it. Ouch.'}`); }

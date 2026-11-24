@@ -7863,6 +7863,67 @@ let TEAM = null, ME = null, MY_LG = null, MY_DIV = null, RIVAL = null, AFF = nul
 const TROPHIES = [];
 const VOICE = () => CALLERS[0];
 const affsOf = a => (TEAM_META[a] || TEAM_META[ME]).aff;
+/* Club colors: [tag background, tag stripe, theme base, theme accent]. The theme
+   tints the whole dashboard for the club you run; tags mark every club in lists. */
+const TEAM_COLORS = {
+  NYY: ['#0C2340', '#C4CED3', '#0C2340', '#C4CED3'], BOS: ['#BD3039', '#0C2340', '#0C2340', '#BD3039'],
+  TOR: ['#134A8E', '#E8291C', '#1D2D5C', '#2B6CC4'], BAL: ['#DF4601', '#000000', '#1A1A1A', '#DF4601'],
+  TB: ['#092C5C', '#8FBCE6', '#092C5C', '#8FBCE6'], CLE: ['#00385D', '#E50022', '#00385D', '#E50022'],
+  MIN: ['#002B5C', '#D31145', '#002B5C', '#D31145'], DET: ['#0C2340', '#FA4616', '#0C2340', '#FA4616'],
+  KC: ['#004687', '#BD9B60', '#004687', '#BD9B60'], CWS: ['#27251F', '#C4CED4', '#27251F', '#C4CED4'],
+  HOU: ['#002D62', '#EB6E1F', '#002D62', '#EB6E1F'], SEA: ['#0C2C56', '#005C5C', '#0C2C56', '#00857C'],
+  TEX: ['#003278', '#C0111F', '#003278', '#C0111F'], LAA: ['#BA0021', '#003263', '#003263', '#BA0021'],
+  ATH: ['#003831', '#EFB21E', '#003831', '#EFB21E'], NYM: ['#002D72', '#FF5910', '#002D72', '#FF5910'],
+  ATL: ['#13274F', '#CE1141', '#13274F', '#CE1141'], PHI: ['#E81828', '#002D72', '#002D72', '#E81828'],
+  WSH: ['#AB0003', '#14225A', '#14225A', '#AB0003'], MIA: ['#00A3E0', '#EF3340', '#000000', '#00A3E0'],
+  MIL: ['#12284B', '#FFC52F', '#12284B', '#FFC52F'], CHC: ['#0E3386', '#CC3433', '#0E3386', '#CC3433'],
+  STL: ['#C41E3A', '#0C2340', '#C41E3A', '#C41E3A'], CIN: ['#C6011F', '#000000', '#000000', '#C6011F'],
+  PIT: ['#27251F', '#FDB827', '#27251F', '#FDB827'], LAD: ['#005A9C', '#EF3E42', '#005A9C', '#1E7BC4'],
+  SD: ['#2F241D', '#FFC425', '#2F241D', '#FFC425'], SF: ['#FD5A1E', '#27251F', '#27251F', '#FD5A1E'],
+  ARI: ['#A71930', '#E3D4AD', '#A71930', '#E3D4AD'], COL: ['#33006F', '#C4CED4', '#33006F', '#C4CED4']
+};
+const _lin = c => (c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+const _gam = c => 255 * (c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
+const _rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const _hex = a => '#' + a.map(v => Math.round(Math.min(255, Math.max(0, v))).toString(16).padStart(2, '0')).join('');
+function toLch(h) {
+  const [r, g, b] = _rgb(h).map(_lin);
+  const l = Math.cbrt(.4122214708 * r + .5363325363 * g + .0514459929 * b), m = Math.cbrt(.2119034982 * r + .6806995451 * g + .1073969566 * b), s = Math.cbrt(.0883024619 * r + .2817188376 * g + .6299787005 * b);
+  const L = .2104542553 * l + .7936177850 * m - .0040720468 * s, A = 1.9779984951 * l - 2.4285922050 * m + .4505937099 * s, B = .0259040371 * l + .7827717662 * m - .8086757660 * s;
+  return [L, Math.hypot(A, B), Math.atan2(B, A)];
+}
+function fromLch(L, C, H) {
+  for (let c = C; ; c *= .9) {
+    const A = c * Math.cos(H), B = c * Math.sin(H);
+    const l = (L + .3963377774 * A + .2158037573 * B) ** 3, m = (L - .1055613458 * A - .0638541728 * B) ** 3, s = (L - .0894841775 * A - 1.2914855480 * B) ** 3;
+    const rgb = [4.0767416621 * l - 3.3077115913 * m + .2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s, -.0041960863 * l - .7034186147 * m + 1.7076147010 * s];
+    if (rgb.every(v => v >= -1e-4 && v <= 1.0001) || c < 1e-3) return _hex(rgb.map(v => _gam(Math.min(1, Math.max(0, v)))));
+  }
+}
+const _lum = h => { const [r, g, b] = _rgb(h).map(_lin); return .2126 * r + .7152 * g + .0722 * b; };
+const contrastOf = (a, b) => { const x = _lum(a), y = _lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+const inkOn = (bg, dark) => contrastOf('#ffffff', bg) >= contrastOf(dark || '#0b0d12', bg) ? '#ffffff' : (dark || '#0b0d12');
+function teamTheme(abbr) {
+  const c = TEAM_COLORS[abbr] || TEAM_COLORS.BOS, [, bc, bh] = toLch(c[2]), [al, ac, ah] = toLch(c[3]);
+  const h = bc < .02 ? ah : bh, k = bc < .02 ? .012 : Math.min(bc, .085), sh = (L, f = 1) => fromLch(L, k * f, h);
+  const bg = sh(.225);
+  let acc = c[3];
+  for (let L = al; contrastOf(acc, bg) < 2.4 && L < .95; L += .02) acc = fromLch(L, ac, ah);
+  const [aL, aC] = toLch(acc), dark = sh(.16, .8);
+  return {
+    '--ink': sh(.185), '--bg': bg, '--panel': sh(.274), '--panel2': sh(.326), '--line': sh(.40), '--deep': sh(.21), '--tipbg': sh(.16),
+    '--orange': acc, '--orange2': fromLch(.83, Math.min(ac, .12), ah), '--acc-hi': fromLch(Math.min(.97, aL + .08), aC, ah), '--acc-mid': fromLch(Math.min(.96, aL + .04), aC, ah),
+    '--acc-sel': fromLch(.34, Math.min(ac, .1), ah), '--on-acc': inkOn(acc, dark)
+  };
+}
+function applyTheme(abbr) {
+  if (typeof document === 'undefined') return;
+  const t = teamTheme(abbr), s = document.documentElement.style;
+  for (const k in t) s.setProperty(k, t[k]);
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t['--ink'];
+}
+const TEAM_TAG = Object.fromEntries(Object.entries(TEAM_COLORS).map(([a, c]) => [a, { bg: c[0], st: c[1], fg: inkOn(c[0]) }]));
+
 function setTeam(abbr) {
   const r = TEAM_ROWS.find(x => x[0] === abbr) || TEAM_ROWS.find(x => x[0] === 'BOS'), m = TEAM_META[r[0]], rv = TEAM_ROWS.find(x => x[0] === m.rival);
   TEAM = { abbr: r[0], city: r[1], name: r[2], lg: r[3], div: r[4], w26: r[5], l26: r[6], rival: m.rival, park: m.park, short: m.short, jinx: m.jinx || 'Jinx', paper: m.paper || `The ${r[1]} Clarion` };
@@ -7876,6 +7937,7 @@ function setTeam(abbr) {
   RADIO = deep(F.radio || g.radio); INJURIES = deep(F.injuries || g.injuries); PHONE_CARDS = deep(F.phone || g.phone);
   HEADLINES = deep(Object.assign({}, g.headlines, F.headlines || {})); HOMETOWNS = F.hometowns || g.hometowns;
   TROPHIES.length = 0; deep(g.trophies).forEach(t => { const o = (F.trophies || {})[t[0]]; TROPHIES.push(o ? [t[0], o[0], o[1]] : t); });
+  applyTheme(ME);
   return TEAM;
 }
 /* ORGS rows: name, pos, alts, age, bats+throws, ovr, pot, level (M active, A optioned, F farm), affiliate, salary, years, contract, ratings, stat lines, born, signed, Rule 5 year, Pipeline rank, FV, ETA, acquired, note */

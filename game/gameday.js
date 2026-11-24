@@ -24,7 +24,7 @@ function headHTML(L) {
   const tag = L.po ? `${['Wild Card', 'Division Series', MY_LG + 'CS', 'World Series'][G.po ? G.po.round : 0]}${s ? ` · Game ${s.wa + s.wb + 1}` : ''}` : `Game ${G.day + 1}`;
   const where = L.home ? TEAM.park : `at ${G.teams[L.opp].city}`;
   return `<div class="gd-top"><div><div class="who-tag">${tag} · ${esc(where)}${L.fromClutch ? ' · Clutch moment' : ''}</div>
-    <div class="gd-score"><b>${TEAM.name} ${L.score.us}</b><span>${esc(G.teams[L.opp].name)} ${L.score.them}</span>${L.over ? `<em>Final${L.inn > 9 ? `/${L.inn}` : ''}</em>` : `<em>${L.top ? '▲' : '▼'} ${innOrd(L.inn)} · ${L.outs} out${L.outs === 1 ? '' : 's'}</em>`}${big ? '<em class="big">Big spot</em>' : ''}</div></div>
+    <div class="gd-score"><b>${tm(ME)} ${TEAM.name} ${L.score.us}</b><span>${tm(L.opp)} ${esc(G.teams[L.opp].name)} ${L.score.them}</span>${L.over ? `<em>Final${L.inn > 9 ? `/${L.inn}` : ''}</em>` : `<em>${L.top ? '▲' : '▼'} ${innOrd(L.inn)} · ${L.outs} out${L.outs === 1 ? '' : 's'}</em>`}${big ? '<em class="big">Big spot</em>' : ''}</div></div>
     <div class="wpb" data-tip="Chance the ${TEAM.name} win from here, based on the score, inning, outs, runners and the two teams' strength."><small>Win chance</small><div class="bar"><i style="width:${wp}%"></i></div><b>${wp}%</b></div></div>
     ${lsTable({ ls: L.ls, hits: L.hits, err: L.err, home: L.home, opp: L.opp, inn: L.inn, over: L.over, score: L.score, cur: L.over ? -1 : L.inn - 1, curS: batSide(L) })}`;
 }
@@ -44,8 +44,8 @@ function bodyHTML(L) {
   const groups = []; L.log.forEach(x => { if (x.k === 'inn' || !groups.length) groups.push({ h: x.k === 'inn' ? x.s : '', items: [] }); if (x.k !== 'inn') groups[groups.length - 1].items.push(x); });
   const feed = groups.slice(-5).reverse().map(g => (g.h ? `<div class="pi">${esc(g.h)}</div>` : '') + g.items.slice().reverse().map(x => `<div class="p-${x.k}">${esc(x.s)}</div>`).join('')).join('');
   return `<div class="gd-grid"><section class="panel gd-field">${diamond(L)}<div class="gd-match">
-      <div class="mu"><small>At bat · ${bs === 'us' ? ME : L.opp}</small><b>${esc(b.name)} <span class="tag">${b.b === 'S' ? 'S' : b.b}</span></b><span>${todayLine(L, b.id)}</span><span>${seasonLine(b)}</span>${pl ? `<span class="note">${pl}</span>` : ''}</div>
-      <div class="mu"><small>Pitching · ${bs === 'us' ? L.opp : ME}</small><b>${esc(p.name)} <span class="tag">${p.t}HP</span>${ps.tired ? '<span class="tag warn">Tired arm</span>' : ''}</b><span>${ps.pc} pitches · ${ipStr(ps.o)} IP, ${ps.h} H, ${ps.er} ER, ${ps.k} K</span><div class="bar" data-tip="Fatigue. Stuff and control fade once he passes his usual pitch count."><i style="width:${fat * 100}%;background:${fat > .78 ? 'var(--bad)' : fat > .6 ? 'var(--warn)' : 'var(--good)'}"></i></div></div>
+      <div class="mu"><small>At bat · ${tm(bs === 'us' ? ME : L.opp)}</small><b>${esc(b.name)} <span class="tag hd h${b.b}">${b.b === 'S' ? 'Switch' : 'Bats ' + b.b}</span></b><span>${todayLine(L, b.id)}</span><span>${seasonLine(b)}</span>${pl ? `<span class="note">${pl}</span>` : ''}</div>
+      <div class="mu"><small>Pitching · ${tm(bs === 'us' ? L.opp : ME)}</small><b>${esc(p.name)} <span class="tag hd h${p.t}">${p.t}HP</span>${ps.tired ? '<span class="tag warn">Tired arm</span>' : ''}</b><span>${ps.pc} pitches · ${ipStr(ps.o)} IP, ${ps.h} H, ${ps.er} ER, ${ps.k} K</span><div class="bar" data-tip="Fatigue. Stuff and control fade once he passes his usual pitch count."><i style="width:${fat * 100}%;background:${fat > .78 ? 'var(--bad)' : fat > .6 ? 'var(--warn)' : 'var(--good)'}"></i></div></div>
       <div class="mu sm"><small>On deck</small><span>${esc(d.name)}</span></div></div></section>
     <section class="panel gd-pbp"><div class="lbl">Play-by-play <span>${GD.note ? esc(GD.note) : 'Newest first'}</span></div><div class="pbp" aria-live="polite">${feed}</div></section></div>${promptHTML(L)}${pickHTML(L)}`;
 }

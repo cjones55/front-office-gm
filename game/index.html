@@ -143,6 +143,11 @@ table.ls td,table.ls th{text-align:center;padding:4px 6px;min-width:24px}table.l
 .fits{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}.fit{font:700 12px/1 var(--cond);letter-spacing:.03em;padding:4px 6px;border-radius:4px;background:#ffffff14}.fit.main,.fit.alt{background:#43e0a02e;color:#8ff5cc}.fit.easy{background:#8cc0ff26;color:#b3d6ff}.fit.stretch{background:#ffd34d26;color:#ffe27a}.fit.bad{background:#ff6b7826;color:#ffaab2}
 .teamgrid button[style]{background:var(--tb);color:var(--tt);border-color:transparent;box-shadow:inset 0 -4px 0 var(--ts)}.teamgrid button[style] small{color:inherit;opacity:.85}.teamgrid button[style]:hover{filter:brightness(1.15)}
 .teamgrid button[style].on{background:var(--tb);color:var(--tt);outline:3px solid var(--text);outline-offset:1px}
+.grade{display:inline-block;min-width:28px;text-align:center;font:700 13px/20px var(--cond);border-radius:4px;padding:0 4px;background:#ffffff1a;color:var(--text)}.grade.gA{background:#43e0a033;color:#8ff5cc}.grade.gB{background:#8cc0ff2e;color:#b3d6ff}.grade.gC{background:#ffd34d26;color:#ffe27a}.grade.gD,.grade.gF{background:#ff6b7826;color:#ffaab2}
+.deals{display:flex;flex-direction:column;gap:4px;max-height:286px;overflow:auto}.deal{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:5px 7px;border-radius:5px;background:var(--panel2);font-size:14px}.deal span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.deal small{color:var(--muted)}.deal.me{outline:2px solid var(--orange)}
+.bigfas{display:flex;flex-direction:column;gap:4px}.bigfa{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;text-align:left;padding:7px 9px;border-radius:6px;background:var(--panel2);border:1px solid transparent;font-size:14px}.bigfa:hover{border-color:var(--orange2)}.bigfa small{color:var(--muted)}.bigfa .bf-r{display:flex;align-items:center;gap:6px;white-space:nowrap}
+@media (max-width:900px){.grid>.c7,.grid>.c5{grid-column:1/-1}}
+@media (max-width:760px){.bigfa{flex-direction:column;align-items:flex-start}}
 </style>
 <div class="app">
   <header class="top" id="top"></header>

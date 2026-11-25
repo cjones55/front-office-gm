@@ -2,7 +2,7 @@
    Contracts: Red Sox and Mets figures as reported (Spotrac and MLB Trade Rumors estimates, Oct 2026); most other contracts are game estimates.
    Prospect ranks and scouting grades: MLB Pipeline team top 30s. Minor league stats, positions, draft and signing details: MLB Stats API.
    All 20-80 game ratings are game estimates. */
-const ROSTER_ASOF = 'Nov 23, 2026';
+const ROSTER_ASOF = 'Nov 25, 2026';
 const TEAM_ROWS = [
   ['TB','Tampa Bay','Rays','AL','East',98,64],['NYY','New York','Yankees','AL','East',93,68],['BOS','Boston','Red Sox','AL','East',87,75],['BAL','Baltimore','Orioles','AL','East',79,82],['TOR','Toronto','Blue Jays','AL','East',79,83],
   ['CLE','Cleveland','Guardians','AL','Central',85,77],['CWS','Chicago','White Sox','AL','Central',84,78],['MIN','Minnesota','Twins','AL','Central',77,85],['DET','Detroit','Tigers','AL','Central',76,86],['KC','Kansas City','Royals','AL','Central',69,93],
@@ -720,6 +720,7 @@ ATL: [
 ["Yander Pinero","SP","",19,"RR",29,43,"F","A",null,null,null,"28,30,62","2026 FCL Braves: 1-1, 4.75 ERA, 15 G (5 GS), 36.0 IP, 36 K, 19 BB, 2 SV|2026 Augusta GreenJackets: 0-1, 6.39 ERA, 6 G (3 GS), 12.2 IP, 10 K, 10 BB, 1 SV","San Felipe, Venezuela","International signing, 2024",2028]
 ],
 BAL: [
+["Freddy Peralta", "SP", "", 31, "RR", 62, 62, "M", null, 25.0, 5, "g", "", "10-11, 4.42 ERA, 32 G (32 GS), 169.0 IP, 156 K, 63 BB", "Moca, Dominican Republic", null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 5 yr, $125M"],
 ["Alex Hoppe","RP","",27,"RR",45,45,"M",null,0.8,5,"pre","47,42,24","1-1, 4.43 ERA, 42 G (0 GS), 42.2 IP, 47 K, 20 BB, 1 SV, 0.3 WAR","Davenport, IA","2022 Draft, Round 6, No. 189 (UNC Greensboro)",null,null,null,null,"Acquired from the Seattle Mariners in a trade (Aug 2026)"],
 ["Anthony Nunez","RP","",25,"SR",47,49,"M",null,0.8,5,"pre","50,45,24","3-2, 4.07 ERA, 52 G (0 GS), 59.2 IP, 66 K, 26 BB, 3 SV, 0.6 WAR","Miami, FL","2019 Draft, Round 29, No. 863 (Miami Springs Sr HS)",null,null,null,null,"Acquired from the New York Mets in a trade (Jul 2025)"],
 ["Aron Estrada","2B","",21,"SR",41,54,"A",null,0.8,6,"pre","49,43,34,39,42","2026 AA Chesapeake Baysox: .278/.321/.481, 24 HR, 76 RBI, 7 SB, 508 PA","Caja Seca, VEN","International signing, 2022",null,13,45,"2027"],
@@ -1249,6 +1250,8 @@ BOS: [
 ["Duke Ellis","CF","LF",28,"LL",41,42,"F","AAA",null,null,null,"44,36,36,52,44","2026 AAA Scranton/Wilkes-Barre RailRiders: .276/.341/.397, 5 HR, 26 RBI, 60 SB, 307 PA","Nacogdoches, TX","2017 Draft, Round 20, No. 588 (Panola JC, TX)",2023,null,null,null,"Originally signed by the Chicago White Sox","Reported Nov 23: minor league deal, pending a physical"]
 ],
 CHC: [
+["Teruaki Sato", "3B", "RF,LF", 27, "LR", 60, 62, "M", null, 20.0, 6, "g", "", "2026 NPB (Japan)", null, null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 6 yr, $120M"],
+["Trevor Rogers", "SP", "", 29, "LL", 66, 66, "M", null, 24.0, 5, "g", "", "10-11, 4.03 ERA, 30 G (30 GS), 169.2 IP, 157 K, 39 BB", "Carlsbad, NM", null, null, null, null, null, "Signed as a free agent (Nov 23, 2026): 5 yr, $120M"],
 ["Alex Bregman","3B","",32,"RR",58,58,"M",null,35.0,4,"g","62,60,59,52,58",".265/.355/.464, 28 HR, 93 RBI, 3 SB, 702 PA, 5.5 WAR","Albuquerque, NM","2015 Draft, Round 1, No. 2 (LSU)",null,null,null,null,"Signed as a free agent (Jan 2026)"],
 ["BJ Murray Jr.","1B","3B",26,"SR",47,52,"M",null,0.8,5,"pre","49,48,48,46,43",".091/.091/.091, 0 HR, 0 RBI, 0 SB, 11 PA, -0.2 WAR","Nassau, Bahamas","2021 Draft, Round 15, No. 454 (Florida Atlantic)",null,19,40,"2026"],
 ["Ben Brown","RP","",27,"RR",55,55,"M",null,0.8,3,"pre","56,55,24","4-2, 1.85 ERA, 20 G (8 GS), 68.0 IP, 65 K, 19 BB, 1 SV, 2.0 WAR","East Setauket, NY","2017 Draft, Round 33, No. 983 (Ward Melville (NY) HS)"],
@@ -1510,6 +1513,7 @@ CHC: [
 ["Yoendris Gonzalez","RP","",23,"RR",33,40,"F","A+",null,null,null,"36,32,24","2026 A Myrtle Beach Pelicans: 1-0, 2.21 ERA, 9 G (1 GS), 20.1 IP, 34 K, 8 BB, 1 SV|2026 A+ South Bend Cubs: 1-0, 3.12 ERA, 9 G (0 GS), 17.1 IP, 21 K, 7 BB, 1 SV|2026 FCL ACL Cubs: 2-0, 2.70 ERA, 4 G (0 GS), 6.2 IP, 9 K, 2 BB","Guaimaro, Cuba","International signing, 2022",2026]
 ],
 CIN: [
+["Tyler Stephenson", "C", "", 30, "RR", 47, 47, "M", null, 10.0, 3, "g", "", ".241/.323/.404, 15 HR, 54 RBI, 0 SB, 468 PA", "Atlanta, GA", null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 3 yr, $30M"],
 ["Andrew Abbott","SP","",27,"LL",56,58,"M",null,4.0,3,"arb","55,56,62","6-11, 4.61 ERA, 32 G (32 GS), 166.0 IP, 131 K, 76 BB, 1.4 WAR","Lynchburg, VA","2021 Draft, Round 2, No. 53 (Virginia)"],
 ["Blake Dunn","CF","RF,LF",28,"RR",48,48,"M",null,0.8,3,"pre","55,41,45,52,51",".282/.335/.387, 2 HR, 7 RBI, 6 SB, 155 PA, 0.6 WAR","Holland, MI","2021 Draft, Round 15, No. 450 (Western Michigan)"],
 ["Brandon Williamson","SP","",28,"RL",43,43,"M",null,0.9,3,"arb","41,42,44","5-5, 5.30 ERA, 12 G (9 GS), 52.2 IP, 36 K, 30 BB, -0.1 WAR","Fairmont, MN","2019 Draft, Round 2, No. 59 (TCU)"],
@@ -1766,6 +1770,7 @@ CIN: [
 ["Victor Diaz","RP","",23,"RR",33,38,"F","A+",null,null,null,"38,28,24","2026 A+ Dayton Dragons: 3-1, 3.33 ERA, 31 G (0 GS), 51.1 IP, 76 K, 37 BB, 5 SV|2026 AA Chattanooga Lookouts: 0-2, 10.00 ERA, 6 G (0 GS), 9.0 IP, 8 K, 6 BB","Winter Park, FL","Signed as an undrafted free agent, 2025",2028]
 ],
 CLE: [
+["Kris Bubic", "SP", "", 29, "LL", 55, 55, "M", null, 17.5, 1, "g", "", "4-2, 3.76 ERA, 14 G (9 GS), 55.0 IP, 56 K, 26 BB", "Cupertino, CA", null, null, null, null, null, "Signed as a free agent (Nov 25, 2026): 1 yr, $17.5M"],
 ["Andrew Walters","RP","",25,"RR",44,50,"M",null,0.8,3,"pre","54,35,24","2026 AAA Columbus Clippers: 2-1, 7.30 ERA, 14 G (0 GS), 12.1 IP, 23 K, 11 BB","Palm Bay, FL","2023 Draft, Round CB-B, No. 62 (Miami)"],
 ["Angel Genao","SS","2B,3B",22,"SR",45,54,"M",null,0.8,5,"pre","46,38,48,45,48",".213/.281/.291, 2 HR, 6 RBI, 1 SB, 139 PA, 0.1 WAR","Castillo, Dominican Republic","International signing, 2021"],
 ["Angel Mart\u00ednez","LF","CF,RF,2B",24,"SR",50,54,"M",null,0.8,3,"pre","52,56,42,50,50",".254/.290/.465, 18 HR, 62 RBI, 11 SB, 416 PA, 1.8 WAR","Santo Domingo, Dominican Republic","International signing, 2019"],
@@ -2291,6 +2296,7 @@ COL: [
 ["Yenderberth Rivas","RP","",17,"RR",23,39,"F","DSL",null,null,null,"21,26,24","2026 DSL Rockies: 1-1, 10.12 ERA, 11 G (1 GS), 24.0 IP, 22 K, 14 BB, 1 SV|2026 DSL Colorado: 0-0, 8.22 ERA, 5 G (0 GS), 7.2 IP, 8 K, 7 BB","Maracay, Venezuela","International signing, 2026",2030]
 ],
 CWS: [
+["Tyrone Taylor", "LF", "", 32, "RR", 51, 51, "M", null, 8.5, 2, "g", "", ".279/.320/.502, 11 HR, 38 RBI, 3 SB, 241 PA", "Torrance, CA", null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 2 yr, $17M"],
 ["Andrew Benintendi","LF","",32,"LL",44,44,"M",null,1.0,2,"g","44,47,45,41,44",".240/.302/.413, 15 HR, 78 RBI, 1 SB, 468 PA, -0.1 WAR","Cincinnati, OH","2015 Draft, Round 1, No. 7 (Arkansas)"],
 ["Anthony Kay","SP","",31,"LL",48,48,"M",null,2.28,2,"g","46,50,61","10-9, 4.44 ERA, 33 G (31 GS), 158.0 IP, 129 K, 56 BB, 1.3 WAR","Stony Brook, NY","2016 Draft, Round 1, No. 31 (Connecticut)",null,null,null,null,"Signed as a free agent (Dec 2025)"],
 ["Braden Montgomery","RF","",23,"SR",45,66,"M",null,0.8,6,"pre","45,42,50,44,45",".226/.312/.350, 6 HR, 38 RBI, 1 SB, 365 PA, 0.9 WAR","Des Moines, IA","2024 Draft, Round 1, No. 12 (Texas A&M)",null,null,null,null,"Acquired from the Boston Red Sox in a trade (Dec 2024)"],
@@ -4097,6 +4103,7 @@ MIA: [
 ["Yanixan Resendiz","RP","",18,"RR",23,37,"F","DSL",null,null,null,"20,27,24","2026 DSL Marlins: 3-3, 6.26 ERA, 15 G (0 GS), 27.1 IP, 24 K, 16 BB","Tijuana, Mexico","International signing, 2026",2030]
 ],
 MIL: [
+["Antonio Senzatela", "RP", "", 31, "RR", 48, 48, "M", null, 2.0, 1, "g", "", "11-5, 4.05 ERA, 57 G (0 GS), 73.1 IP, 60 K, 26 BB", "Valencia, Venezuela", null, null, null, null, null, "Signed as a free agent (Nov 25, 2026): 1 yr, $2M"],
 ["Aaron Ashby","RP","",28,"RL",49,49,"M",null,2.31,1,"arb","54,44,24","13-3, 3.12 ERA, 75 G (1 GS), 89.1 IP, 116 K, 41 BB, 4 SV, 1.5 WAR","Kansas City, MO","2018 Draft, Round 4, No. 125 (Crowder College)"],
 ["Abner Uribe","RP","",26,"RR",51,51,"M",null,2.21,3,"arb","53,49,24","6-3, 1.97 ERA, 61 G (0 GS), 59.1 IP, 62 K, 19 BB, 6 SV, 1.6 WAR","Santo Domingo, Dominican Republic","International signing, 2018"],
 ["Andrew Vaughn","1B","",28,"RR",51,51,"M",null,3.47,1,"arb","62,46,52,44,47",".306/.390/.444, 6 HR, 43 RBI, 0 SB, 331 PA, 1.6 WAR","Santa Rosa, CA","2019 Draft, Round 1, No. 3 (California)",null,null,null,null,"Acquired from the Chicago White Sox in a trade (Jun 2025)"],
@@ -4575,6 +4582,8 @@ MIN: [
 ["Yordi Jose","RP","",20,"LL",26,36,"F","FCL",null,null,null,"30,21,24","2026 FCL Twins: 0-1, 5.40 ERA, 3 G (2 GS), 10.0 IP, 11 K, 11 BB","La Romana, Dominican Republic","International signing, 2025",2029]
 ],
 NYM: [
+["Paul Goldschmidt", "1B", "", 39, "RR", 50, 50, "M", null, 8.0, 1, "g", "", ".252/.313/.452, 18 HR, 52 RBI, 1 SB, 380 PA", "Wilmington, DE", null, null, null, null, null, "Signed as a free agent (Nov 25, 2026): 1 yr, $8M"],
+["Tarik Skubal", "SP", "", 30, "RL", 78, 78, "M", null, 50.0, 9, "g", "", "12-7, 2.72 ERA, 26 G (26 GS), 158.2 IP, 186 K, 27 BB", "Hayward, CA", null, null, null, null, null, "Signed as a free agent (Nov 22, 2026): 9 yr, $450M", "Record deal for a pitcher. Full no-trade clause, no opt-outs."],
 ["A.J. Ewing","CF","LF,RF",22,"LR",56,70,"M",null,11.875,8,"g","55,42,55,72,62",".252/.324/.376, 11 HR, 43 RBI, 3.1 WAR","Kettering, OH","2023 Draft, Round 4C, No. 134 (Springboro HS)"],
 ["Austin Warren","RP","",30,"RR",47,47,"M",null,0.9,3,"arb","50,44,24","2-3, 4.11 ERA, 55 K, 0.3 WAR","Fayetteville, NC","2018 Draft, Round 6, No. 181 (UNC Wilmington)",null,null,null,null,"Claimed off waivers from the San Francisco Giants (Jan 2025)"],
 ["Bo Bichette","3B","SS,2B",28,"RR",58,60,"M",null,42.0,2,"g","66,50,42,42,47",".260/.312/.390, 18 HR, 78 RBI, 0.7 WAR","Orlando, FL","2016 Draft, Round 2, No. 66 (Lakewood (FL) HS)",null,null,null,null,"Signed as a free agent (Jan 2026)"],
@@ -4848,6 +4857,9 @@ NYM: [
 ["Zack Mack","RP","",24,"RR",30,34,"F","A",null,null,null,"29,32,24","2026 A St. Lucie Mets: 9-2, 2.89 ERA, 34 G (0 GS), 46.2 IP, 50 K, 20 BB, 2 SV|2026 AAA Syracuse Mets: 1-0, 0.00 ERA, 1 G (0 GS), 0.2 IP, 1 K, 0 BB","Houston, TX","2025 Draft, Round 16, No. 493 (Loyola Marymount University)",2028]
 ],
 NYY: [
+["Tim Hill", "RP", "", 36, "RL", 44, 44, "M", null, 2.5, 1, "g", "", "5-2, 4.60 ERA, 67 G (0 GS), 58.2 IP, 25 K, 13 BB", "Mission Hills, CA", null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 1 yr, $2.5M"],
+["Brent Suter", "RP", "", 37, "LL", 46, 46, "M", null, 1.75, 1, "g", "", "3-2, 3.36 ERA, 54 G (4 GS), 91.0 IP, 78 K, 25 BB", "Chicago, IL", null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 1 yr, $1.75M"],
+["Jonathan Loáisiga", "RP", "", 32, "RR", 52, 52, "M", null, 9.0, 2, "g", "", "7-3, 2.42 ERA, 67 G (0 GS), 67.0 IP, 48 K, 13 BB", "Managua, Nicaragua", null, null, null, null, null, "Signed as a free agent (Nov 20, 2026): 2 yr, $18M"],
 ["Aaron Judge","RF","",34,"RR",79,79,"M",null,40.0,6,"g","74,80,80,78,79",".241/.360/.511, 18 HR, 41 RBI, 5 SB, 285 PA, 2.0 WAR","Linden, CA","2013 Draft, Round 1, No. 32 (Fresno State)"],
 ["Ali S\u00e1nchez","C","",29,"RR",46,46,"M",null,1.38,2,"g","50,40,41,49,48",".244/.275/.302, 1 HR, 8 RBI, 0 SB, 92 PA, 0.3 WAR","Carora, Venezuela","International signing, 2014",null,null,null,null,"Signed as a free agent (Dec 2025)"],
 ["Angel Chivilli","RP","",24,"RR",42,46,"M",null,0.8,3,"pre","43,44,24","1-1, 3.78 ERA, 15 G (0 GS), 16.2 IP, 16 K, 7 BB, -0.2 WAR","La Victoria, Dominican Republic","International signing, 2019",null,null,null,null,"Acquired from the Colorado Rockies in a trade (Jan 2026)"],
@@ -7087,6 +7099,7 @@ TEX: [
 ["Yolfran Castillo","SS","",19,"RR",32,59,"F","A",null,null,null,"38,26,28,38,38","2026 A Hickory Crawdads: .286/.390/.416, 8 HR, 58 RBI, 55 SB, 537 PA|2026 A+ Hub City Spartanburgers: .400/.400/.400, 0 HR, 0 RBI, 0 SB, 5 PA","Barquisimeto, Venezuela","International signing, 2024",2028,5,50,"2029"]
 ],
 TOR: [
+["Kaima Taira", "SP", "RP", 27, "RR", 57, 59, "M", null, 16.0, 5, "g", "", "2026 NPB (Japan)", null, null, null, null, null, null, "Signed as a free agent (Nov 24, 2026): 5 yr, $80M"],
 ["Addison Barger","3B","RF",27,"LR",54,56,"M",null,1.0,4,"pre","45,64,51,44,54",".045/.214/.091, 0 HR, 2 RBI, 0 SB, 28 PA, 0.0 WAR","Bellevue, WA","2018 Draft, Round 6, No. 176 (C Leon King HS)"],
 ["Alejandro Kirk","C","",28,"RR",56,56,"M",null,11.6,4,"g","65,52,58,51,58",".278/.351/.415, 10 HR, 43 RBI, 1 SB, 313 PA, 2.8 WAR","Tijuana, Mexico","International signing, 2017"],
 ["Andr\u00e9s Gim\u00e9nez","SS","2B",28,"LR",53,53,"M",null,6.11,2,"g","57,50,48,58,56",".244/.291/.359, 9 HR, 59 RBI, 20 SB, 508 PA, 2.8 WAR","Barquisimeto, Venezuela","International signing, 2016",null,null,null,null,"Acquired from the Cleveland Guardians in a trade (Dec 2024)"],
@@ -7555,97 +7568,122 @@ WSH: [
 };
 
 /* Free agents: name|pos|alts|age|B|T|ovr|years|total|2026 club */
-const FA_ROWS = `Trevor Rogers|SP||29|L|L|66|5|115|BAL
-Seiya Suzuki|RF|LF,DH|32|R|R|64|4|105|CHC
-Freddy Peralta|SP||31|R|R|62|5|110|TB
-Randy Arozarena|LF|RF|32|R|R|62|4|100|SEA
-Michael King|SP||31|R|R|62|4|92|SD
-Teruaki Sato|3B|RF,LF|27|L|R|60|5|80|
-Jazz Chisholm Jr.|2B|3B,CF|28|L|R|60|2|40|NYY
-Adrian Morejon|RP||27|L|L|59|5|80|SD
-Kaima Taira|SP|RP|27|R|R|57|4|72|
-Hiromi Itoh|SP||29|R|R|56|2|20|
-Brandon Lowe|2B|1B|32|L|R|55|3|69|PIT
-Clay Holmes|SP|RP|33|R|R|55|3|45|
-Ian Happ|LF|RF|32|S|R|55|3|45|CHC
-Kevin Gausman|SP||35|L|R|55|2|44|CHC
-Bryan Abreu|RP||29|R|R|55|2|22|
-Kris Bubic|SP||29|L|L|55|1|12.5|LAD
-George Springer|DH||37|R|R|55|1|10.1|TOR
-Tyler Mahle|SP||32|R|R|54|3|54|ATL
-Luis Arraez|2B|1B|29|L|R|54|3|48|PHI
-Alex Vesia|RP||30|L|L|54|2|26|LAD
+const FA_ROWS = `Michael King|SP||31|R|R|62|3|79.5|SD
+Jazz Chisholm Jr.|2B|3B,CF|28|L|R|60|2|46|NYY
+Randy Arozarena|LF|RF|32|R|R|62|4|90|SEA
+Seiya Suzuki|RF|LF,DH|32|R|R|64|4|90|CHC
+Adrian Morejon|RP||27|L|L|59|4|88|SD
+Brandon Lowe|2B|1B|32|L|R|55|4|80|PIT
 Shota Imanaga|SP||33|L|L|53|2|40|CHC
-Casey Mize|SP||29|R|R|53|2|28|SD
-Nick Pivetta|SP||33|R|R|53|2|26|SD
-Jack Flaherty|SP||31|R|R|53|3|22.5|DET
-Nick Martinez|SP|RP|36|L|R|52|2|42|TB
-Foster Griffin|SP|RP|31|L|L|52|3|39|CLE
-Daulton Varsho|CF|LF,RF|30|L|R|52|2|20|HOU
-Zac Gallen|SP||31|R|R|52|3|18.9|ARI
-Randal Grichuk|DH||35|R|R|52|1|6.3|CWS
-Trevor Larnach|LF||29|L|R|52|3|18.9|MIN
-Brandon Woodruff|SP||33|L|R|52|2|12.6|MIL
-Patrick Sandoval|SP||30|L|L|51|3|15.9|BOS
-Tyrone Taylor|LF||32|R|R|51|2|10.6|CHC
-Michael Soroka|SP||29|R|R|50|2|26|
-Raisel Iglesias|RP||36|R|R|50|1|17|ATL
-Luis Robert Jr.|CF||29|R|R|50|1|14|BAL
-Paul Goldschmidt|1B||39|R|R|50|1|4.3|NYY
-Isiah Kiner-Falefa|SS||31|R|R|50|3|12.9|BOS
-Cal Quantrill|SP||31|L|R|50|3|12.9|TEX
-Joey Wiemer|RF||27|R|R|50|4|17.2|CWS
-Walker Buehler|SP||32|R|R|49|2|7.0|SD
-Sean Newcomb|RP||33|L|L|49|2|7.0|CWS
-Mart\xedn P\xe9rez|SP||35|L|L|49|1|3.5|ATL
-Gregory Soto|RP||31|L|L|49|2|7.0|PIT
-TJ Friedl|CF||31|R|R|49|2|7.0|
-David Peterson|SP||31|L|L|48|2|24|CHC
-JoJo Romero|RP||30|L|L|48|2|13|MIL
-Robbie Ray|SP||35|L|L|48|1|12|SD
-Tyler Alexander|RP||32|R|L|48|2|5.6|TEX
-Chris Bassitt|SP||37|R|R|48|1|2.8|BAL
-Austin Hedges|C||34|R|R|48|2|5.6|CLE
-Mark Leiter Jr.|RP||35|R|R|48|1|2.8|ATH
-Bailey Ober|SP||31|R|R|48|2|5.6|MIN
-Miguel Rojas|2B||37|R|R|48|1|2.8|LAD
-Antonio Senzatela|RP||31|R|R|48|2|5.6|MIL
-Edmundo Sosa|SS||30|R|R|48|2|5.6|PHI
-Gary S\xe1nchez|C||33|R|R|48|2|5.6|MIL
-Carson Kelly|C||32|R|R|47|2|20|CHC
-J.P. Crawford|3B|SS,2B|31|L|R|47|2|16|SEA
-Tyler Stephenson|C||30|R|R|47|2|15|CIN
-Matthew Boyd|SP||35|L|L|47|1|13|CHC
-Taylor Ward|LF|RF|32|R|R|47|1|12|SEA
-Shane Bieber|SP||31|R|R|47|2|4.4|TOR
-Alec Bohm|3B||30|R|R|47|2|4.4|PHI
-Brock Burke|RP||30|L|L|47|2|4.4|CIN
-Aaron Civale|SP||31|R|R|47|2|4.4|CHC
-Michael Conforto|LF||33|L|R|47|2|4.4|CHC
-Kevin Ginkel|RP||32|L|R|47|2|4.4|ARI
-Nicky Lopez|2B||31|L|R|47|2|4.4|TEX
-Cedric Mullins|CF||32|L|L|47|2|4.4|TB
-Myles Straw|CF||32|R|R|47|2|4.4|TOR
-Gleyber Torres|2B||29|R|R|47|2|4.4|DET
-Ryan Yarbrough|RP||34|R|L|47|2|4.4|NYY
-Kirby Yates|RP||39|L|R|47|1|2.2|PIT
-Ty France|1B||32|R|R|46|2|32|SD
-Mauricio Dubon|2B|SS,3B,CF|32|R|R|46|2|18|ATL
-Jos\xe9 Alvarado|RP||31|L|L|46|2|3.4|PHI
-Josh Bell|DH||34|S|R|46|2|3.4|MIN
-Taylor Clarke|RP||33|R|R|46|2|3.4|ARI
-Trent Grisham|CF||30|L|L|46|2|3.4|NYY
-Jeff McNeil|2B||34|L|R|46|2|3.4|ATH
-Cole Sulser|RP||36|R|R|46|1|1.7|TB
-Brent Suter|RP||37|L|L|46|1|1.7|ATL
-Steven Okert|RP||35|L|L|45|2|14|HOU
-Paul Blackburn|SP|RP|32|R|R|44|2|15|NYY
-Joc Pederson|DH|LF|34|L|L|44|1|14|TEX
-Nolan Gorman|3B||26|L|R|44|2|2.0|STL
-Connor Wong|C||30|R|R|43|1|0.9|BOS
-Kyle Freeland|SP||33|L|L|40|1|0.8|COL`;
+George Springer|DH||37|R|R|55|1|18.2|TOR
+Luis Arraez|2B|1B|29|L|R|54|3|54|PHI
+Clay Holmes|SP|RP|33|R|R|55|2|35|
+Nick Martinez|SP|RP|36|L|R|52|1|17.5|TB
+Eugenio Suárez|3B||35|R|R|54|1|17.2|CIN
+Kevin Gausman|SP||35|L|R|55|3|51|CHC
+Ramón Laureano|LF|RF,CF|32|R|R|54|2|33.0|
+Tyler Mahle|SP||32|R|R|54|3|49.5|ATL
+Ian Happ|LF|RF|32|S|R|55|3|48|CHC
+Randal Grichuk|DH||35|R|R|52|1|15.6|CWS
+Brandon Woodruff|SP||33|L|R|52|2|30.0|MIL
+Casey Mize|SP||29|R|R|53|1|15|SD
+Daulton Varsho|CF|LF,RF|30|L|R|52|1|15|HOU
+Foster Griffin|SP|RP|31|L|L|52|2|30|CLE
+Nick Pivetta|SP||33|R|R|53|3|45|SD
+Trevor Larnach|LF||29|L|R|52|3|45.0|MIN
+Raisel Iglesias|RP||36|R|R|50|1|14|ATL
+Taylor Ward|LF|RF|32|R|R|47|2|28|SEA
+Trent Grisham|CF||30|L|L|46|1|14|NYY
+Patrick Sandoval|SP||30|L|L|51|2|27.5|BOS
+Jack Flaherty|SP||31|R|R|53|2|26|DET
+Ty France|1B||32|R|R|46|1|13|SD
+Alex Vesia|RP||30|L|L|54|2|25|LAD
+Brady Singer|SP||30|R|R|50|2|25.0|CIN
+Cal Quantrill|SP||31|L|R|50|2|25.0|TEX
+Gleyber Torres|2B||29|R|R|47|1|12.5|DET
+Isiah Kiner-Falefa|SS||31|R|R|50|2|25.0|BOS
+Joey Wiemer|RF||27|R|R|50|2|25.0|CWS
+Walker Buehler|SP||32|R|R|49|1|12.5|SD
+Mart\xedn P\xe9rez|SP||35|L|L|49|1|12.2|ATL
+Alec Bohm|3B||30|R|R|47|1|12|PHI
+Gregory Soto|RP||31|L|L|49|3|36|PIT
+Michael Soroka|SP||29|R|R|50|2|24|
+Zac Gallen|SP||31|R|R|52|1|12|ARI
+Miguel Andujar|DH|LF,3B|31|R|R|49|2|23.5|
+TJ Friedl|CF||31|R|R|49|2|23.5|
+Chris Bassitt|SP||37|R|R|48|1|11.4|BAL
+Miguel Rojas|2B||37|R|R|48|1|11.4|LAD
+Robbie Ray|SP||35|L|L|48|1|11.4|SD
+Austin Hedges|C||34|R|R|48|1|11.0|CLE
+Bailey Ober|SP||31|R|R|48|2|22.0|MIN
+David Peterson|SP||31|L|L|48|1|11|CHC
+Edmundo Sosa|SS||30|R|R|48|2|22.0|PHI
+Gary S\xe1nchez|C||33|R|R|48|1|11.0|MIL
+J.P. Crawford|3B|SS,2B|31|L|R|47|1|11|SEA
+Jesús Sánchez|RF|LF|29|L|R|48|2|22.0|
+Bryan Abreu|RP||29|R|R|55|1|10.5|
+Luis Robert Jr.|CF||29|R|R|50|1|10.5|BAL
+Pete Fairbanks|RP||32|R|R|51|1|10.5|MIA
+A.J. Minter|RP||33|L|L|50|1|10.0|MIN
+A.J. Puk|RP||31|L|L|50|2|20.0|ARI
+Aaron Civale|SP||31|R|R|47|1|10.0|CHC
+Amed Rosario|3B|2B|31|R|R|47|1|10.0|NYY
+Cedric Mullins|CF||32|L|L|47|1|10.0|TB
+Erick Fedde|SP||33|R|R|47|1|10.0|CWS
+Matthew Boyd|SP||35|L|L|47|1|10|CHC
+Michael Conforto|LF||33|L|R|47|1|10.0|CHC
+Myles Straw|CF||32|R|R|47|1|10.0|TOR
+Nicky Lopez|2B||31|L|R|47|1|10.0|TEX
+Shane Bieber|SP||31|R|R|47|1|10.0|TOR
+Hiromi Itoh|SP||29|R|R|56|2|18|
+Andrew Kittredge|RP||36|R|R|49|1|8.8|BAL
+Carson Kelly|C||32|R|R|47|2|17|CHC
+Sean Newcomb|RP||33|L|L|49|1|8.5|CWS
+Jeff McNeil|2B||34|L|R|46|1|7.5|ATH
+Josh Bell|DH||34|S|R|46|1|7.5|MIN
+Luke Raley|RF|1B|32|L|R|46|1|7.5|SEA
+Mauricio Dubon|2B|SS,3B,CF|32|R|R|46|1|7.5|ATL
+Rhys Hoskins|1B||33|R|R|46|1|7.5|CLE
+Jason Adam|RP||35|R|R|48|1|7.3|SD
+Mark Leiter Jr.|RP||35|R|R|48|1|7.3|ATH
+JoJo Romero|RP||30|L|L|48|2|14.0|MIL
+Tyler Alexander|RP||32|R|L|48|1|7.0|TEX
+Kenley Jansen|RP||39|S|R|47|1|5.5|DET
+Kirby Yates|RP||39|L|R|47|1|5.5|PIT
+Andrés Machado|RP||33|R|R|47|1|5.2|
+Brock Burke|RP||30|L|L|47|1|5.2|CIN
+Kevin Ginkel|RP||32|L|R|47|1|5.2|ARI
+Ryan Yarbrough|RP||34|R|L|47|1|5.2|NYY
+Adolis García|RF||33|R|R|45|1|5.0|PHI
+Dominic Smith|DH|1B|31|L|L|45|1|5.0|ATL
+Leody Taveras|CF|RF|28|S|R|45|1|5.0|
+Cole Sulser|RP||36|R|R|46|1|3.6|TB
+Anderson Espinoza|RP||28|R|R|46|1|3.5|
+Jos\xe9 Alvarado|RP||31|L|L|46|1|3.5|PHI
+Taylor Clarke|RP||33|R|R|46|1|3.5|ARI
+Trevor Richards|RP||33|R|R|46|1|3.5|CWS
+Max Scherzer|SP||42|R|R|44|1|3.1|TOR
+Joc Pederson|DH|LF|34|L|L|44|1|3.0|TEX
+Jonathan India|2B||29|R|R|44|1|3.0|KC
+Kyle Isbel|CF||29|L|R|44|1|3.0|KC
+Nolan Gorman|3B||26|L|R|44|1|3.0|STL
+Paul Blackburn|SP|RP|32|R|R|44|1|3.0|NYY
+Shawn Armstrong|RP||36|R|R|45|1|2.9|CLE
+Steven Okert|RP||35|L|L|45|1|2.9|HOU
+Connor Wong|C||30|R|R|43|1|2.2|BOS
+Jeffrey Springs|SP||34|L|L|43|1|2.2|ATH
+Matt Vierling|CF||30|R|R|43|1|2.2|DET
+Ryan Mountcastle|1B||29|R|R|43|1|2.2|BAL
+Jordan Montgomery|RP||33|L|L|43|1|1.7|TEX
+Frankie Montas|SP||33|R|R|38|1|0.8|NYM
+Kyle Freeland|SP||33|L|L|40|1|0.8|COL
+Tomoyuki Sugano|SP||37|R|R|40|1|0.8|COL
+Zach Eflin|SP||32|R|R|39|1|0.8|BAL`;
 
 /* Trade protections and winter signings (from public reporting; approximate). */
+/* This winter's real signings through Nov 25, 2026 (ESPN, AP, NBC Sports; three small one-year deals estimated). */
+const REAL_DEALS = [["Tarik Skubal", "NYM", 9, 450, "Nov 22"], ["Freddy Peralta", "BAL", 5, 125, "Nov 24"], ["Trevor Rogers", "CHC", 5, 120, "Nov 23"], ["Teruaki Sato", "CHC", 6, 120, "Nov 24"], ["Kaima Taira", "TOR", 5, 80, "Nov 24"], ["Kris Bubic", "CLE", 1, 17.5, "Nov 25"], ["Tyler Stephenson", "CIN", 3, 30, "Nov 24"], ["Jonathan Loáisiga", "NYY", 2, 18, "Nov 20"], ["Tyrone Taylor", "CWS", 2, 17, "Nov 24"], ["Paul Goldschmidt", "NYM", 1, 8, "Nov 25"], ["Brent Suter", "NYY", 1, 1.75, "Nov 24"], ["Tim Hill", "NYY", 1, 2.5, "Nov 24"], ["Antonio Senzatela", "MIL", 1, 2, "Nov 25"], ["Sonny Gray", "MIN", 2, 55, "Nov 18"], ["Jake Bauers", "BOS", 4, 58, "Nov 17"], ["Dustin May", "CWS", 3, 52.5, "Nov 18"], ["Evan Phillips", "ATL", 3, 35, "Nov 12"], ["Emilio Pagán", "DET", 1, 11, "Nov 17"], ["Ryan Jeffers", "MIN", 1, 23.15, "Nov 17"], ["David Bednar", "NYY", 1, 23.15, "Nov 17"]];
+const QO_DECLINED = ["Randy Arozarena", "Seiya Suzuki", "Brandon Lowe", "Adrian Morejon"];
 const NTC_FULL = ['Juan Soto', 'Francisco Lindor', 'Tarik Skubal', 'Aaron Judge', 'Gerrit Cole', 'Giancarlo Stanton', 'Shohei Ohtani', 'Mookie Betts', 'Freddie Freeman', 'Bryce Harper', 'Trea Turner', 'Manny Machado', 'Xander Bogaerts', 'Mike Trout', 'Corey Seager', 'Vladimir Guerrero Jr.', 'Willy Adames', 'Dansby Swanson'];
 const TEN_FIVE = ['Jose Altuve', 'Jose Ramirez', 'Salvador Perez', 'Byron Buxton', 'Christian Yelich', 'Mike Trout', 'Aaron Judge', 'Giancarlo Stanton', 'Gerrit Cole', 'Francisco Lindor', 'Manny Machado'];
 const SIGNED_WINTER = ['Tarik Skubal', 'Jake Bauers', 'Sonny Gray', 'Dustin May', 'Evan Phillips', 'Ryan Jeffers', 'David Bednar', 'Jonathan Loaisiga', 'Luis Gil'];

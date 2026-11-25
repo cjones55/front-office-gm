@@ -252,25 +252,44 @@ function vFarm() {
 }
 
 /* ---------- free agents ---------- */
+const gradeTag = g => `<span class="grade g${g[0]}">${g}</span>`;
+function suitorTags(p) { const s = (p.mkt && p.mkt.suit) || []; return s.length ? `${s.slice(0, 3).map(t => tm(t)).join(' ')}${s.length > 3 ? ` <small class="note">+${s.length - 3}</small>` : ''}` : '<span class="note">Quiet</span>'; }
+function faStatus(p) { const m = p.mkt; if (!m) return ''; const b = bestRival(p); return m.dl ? `<span class="tag warn">Decides Wk ${m.dl}</span>` : m.suit.length >= 4 && b ? '<span class="tag bad">Bidding war</span>' : !b ? '<span class="tag">No offers yet</span>' : ''; }
 function vFA() {
   let list = freeAgents(); if (UI.fa === 'HIT') list = list.filter(p => !isPit(p)); else if (UI.fa !== 'ALL') list = list.filter(p => p.pos === UI.fa || (p.alts || []).includes(UI.fa));
   if (UI.faq) list = list.filter(p => p.name.toLowerCase().includes(UI.faq.toLowerCase()));
+  freeAgents().forEach(p => { if (!p.mkt) marketFor(p); });
   const chips = ['ALL', 'SP', 'RP', 'HIT', 'C', '1B', '2B', '3B', 'SS', 'LF', 'CF', 'RF', 'DH'].map(k => `<button class="chip ${UI.fa === k ? 'on' : ''}" data-a="faf" data-k="${k}">${k === 'ALL' ? 'All' : k === 'HIT' ? 'Hitters' : k}</button>`).join('');
-  const rows = list.map(p => `<tr class="row" data-a="neg" data-id="${p.id}"><td>${nm(p)}${p.exMet ? `<span class="tag good">Ex-${esc(TEAM.name)}</span>` : p.exTeam && TEAM_TAG[p.exTeam] ? ` <span data-tip="2026 club">${tm(p.exTeam)}</span>` : ''}</td><td class="l">${posTxt(p)}</td><td class="l">${bt(p)}</td><td>${p.age}</td><td>${ov(p.ovr)}</td><td>${p.ask.yrs} yr</td><td>${money(p.ask.aav)}</td><td>${money(p.ask.aav * p.ask.yrs)}</td><td>${heat(p.heat)}</td><td><button class="btn sm go" data-a="neg" data-id="${p.id}">Call agent</button></td></tr>`).join('');
-  return `<div class="ph"><div><h1>Free agents</h1><p>${freeAgents().length} available. Rivals sign players every week, and asking prices soften after Week 4.</p></div><input id="faq" type="text" placeholder="Search players" value="${esc(UI.faq)}" style="max-width:220px" aria-label="Search free agents"></div>
+  const ex = p => p.exMet ? `<span class="tag good">Ex-${esc(TEAM.name)}</span>` : p.exTeam && TEAM_TAG[p.exTeam] ? ` <span data-tip="2026 club">${tm(p.exTeam)}</span>` : '';
+  const rows = list.map(p => `<tr class="row" data-a="neg" data-id="${p.id}"><td>${nm(p)}${ex(p)}${p.qo ? '<span class="tag warn" data-tip="Turned down a qualifying offer: signing costs a draft pick">QO</span>' : ''}</td><td class="l">${posTxt(p)}</td><td class="l">${bt(p)}</td><td>${p.age}</td><td>${ov(p.ovr)}</td><td>${p.ask.yrs} yr</td><td>${money(p.ask.aav)}</td><td>${money(p.ask.aav * p.ask.yrs)}</td><td class="l">${p.mkt ? PRI_SHORT[p.mkt.pri] : ''}</td><td class="l">${suitorTags(p)}</td><td><button class="btn sm go" data-a="neg" data-id="${p.id}">Call agent</button></td></tr>`).join('');
+  const big = freeAgents().slice().sort((a, b) => b.ask.aav * b.ask.yrs - a.ask.aav * a.ask.yrs).slice(0, 6).map(p => { const b = bestRival(p); return `<button class="bigfa" data-a="neg" data-id="${p.id}"><span><b>${esc(p.name)}</b> <small>${p.pos} · ${p.age} · asks ${p.ask.yrs}/${money(p.ask.aav * p.ask.yrs)}</small></span><span class="bf-r">${faStatus(p)} ${b ? `${tm(b.t)} <small>${b.o.yrs}/${money(b.o.aav * b.o.yrs)}</small>` : ''}</span></button>`; }).join('');
+  const deals = (G.deals || []).slice(0, 14).map(d => `<div class="deal ${d.team === ME ? 'me' : ''}">${tm(d.team)}<span><b>${esc(d.name)}</b> <small>${d.pos}${d.real ? ` · ${esc(d.date)}` : d.wk ? ` · Wk ${d.wk}` : ''}</small></span><small>${d.yrs} yr, ${money(d.total)}${d.opt ? ', opt-out' : ''}</small>${gradeTag(d.g)}</div>`).join('') || '<p class="note">No deals yet this winter.</p>';
+  const when = G.phase === 'offseason' ? `Week ${G.week} of ${G.weeks}${G.week === WM_WEEK ? ': the Winter Meetings, so expect a flurry of deals' : ''}. ` : '';
+  return `<div class="ph"><div><h1>Free agents</h1><p>${freeAgents().length} available. ${when}Rival clubs raise their offers as the winter goes on, and a player signs when the best offer is good enough for what they care about.</p></div><input id="faq" type="text" placeholder="Search players" value="${esc(UI.faq)}" style="max-width:220px" aria-label="Search free agents"></div>
+  <div class="grid" style="margin-bottom:12px"><section class="panel c7"><div class="lbl">Hot stove: biggest names left <span>Best rival offer</span></div><div class="bigfas">${big || '<p class="note">The market is picked clean.</p>'}</div></section>
+  <section class="panel c5"><div class="lbl">Signings this winter <span>Deal grades</span></div><div class="deals">${deals}</div></section></div>
   <div class="chips" style="margin-bottom:10px">${chips}</div>
-  <section class="panel"><div class="table"><table><tr><th>Player</th><th class="l">Pos</th><th class="l">B/T</th><th>Age</th><th>OVR</th><th>Ask</th><th>AAV</th><th>Total</th><th>Heat</th><th></th></tr>${rows || '<tr><td colspan="10">Nobody fits that filter.</td></tr>'}</table></div></section>`;
+  <section class="panel"><div class="table"><table><tr><th>Player</th><th class="l">Pos</th><th class="l">B/T</th><th>Age</th><th>OVR</th><th>Ask</th><th>AAV</th><th>Total</th><th class="l">Wants</th><th class="l">Suitors</th><th></th></tr>${rows || '<tr><td colspan="11">Nobody fits that filter.</td></tr>'}</table></div></section>`;
 }
 function negModal(p) {
-  const n = UI.modal, pat = p.neg ? p.neg.patience : 3, after = payroll() + n.aav * (1 - n.defer), score = offerScore(p, n);
-  const vibe = score >= 1 ? 'Agent is leaning in' : score >= .92 ? 'In the ballpark' : score >= .82 ? 'Agent is sighing' : 'Agent is laughing';
-  return `<div class="dlg"><div class="who-tag">On the phone with the agent for</div><h2>${esc(p.name)}</h2>
-  <div><span class="tag">${p.pos}</span><span class="tag">Age ${p.age}</span> ${ov(p.ovr)} <span class="note" style="margin-left:6px">Asking ${p.ask.yrs} yr, ${money(p.ask.aav)}/yr</span></div>
-  <div class="speech">${esc(n.msg || `We have ${p.heat || 'a few'} other team${p.heat === 1 ? '' : 's'} interested. Impress me.`)}</div>
-  <label class="field">Years <output id="o-y">${n.yrs}</output><input id="n-y" type="range" min="1" max="10" step="1" value="${n.yrs}"></label>
+  if (!p.mkt) marketFor(p);
+  const n = UI.modal, m = p.mkt, mx = m.pace === 'slow' ? 2 : 3, pat = p.neg ? p.neg.patience : mx, after = payroll() + n.aav * (1 - n.defer);
+  const b = bestRival(p), score = offerValue(p, n, ME) / needOf(p);
+  const vibe = score >= 1 ? 'Agent is leaning in' : score >= .95 ? 'In the ballpark' : score >= .85 ? 'Agent is sighing' : 'Agent is laughing';
+  const old = p.exTeam && G.teams[p.exTeam];
+  const fit = m.pri === 'win' ? `Your club projects to ${projWins(ME)} wins` : m.pri === 'role' ? (wouldStart(p, ME) ? 'You can promise an everyday job' : 'They would not start for you, which hurts') : m.pri === 'stage' ? (BIG_MARKETS.includes(ME) ? `${esc(TEAM.city)} is a big stage` : 'Not a big market, so you start behind') : m.pri === 'home' ? (p.exTeam === ME ? 'You are home for them' : `${old ? esc(old.city) : 'Their old club'} has the inside track`) : m.pri === 'years' ? 'Extra years count for a lot here' : 'The money talks loudest';
+  const pace = m.pace === 'slow' ? ' This agent likes to wait out the market.' : m.pace === 'fast' ? ' This agent likes to close early.' : '';
+  return `<div class="dlg"><div class="who-tag">On the phone with ${esc(m.agent)} for</div><h2>${esc(p.name)}</h2>
+  <div><span class="tag">${posTxt(p)}</span><span class="tag">Age ${p.age}</span>${hand(p)}${p.qo ? '<span class="tag warn" data-tip="Turned down a qualifying offer. Signing costs a draft pick and $500K of pool space.">QO</span>' : ''} ${ov(p.ovr)} <span class="note" style="margin-left:6px">Asking ${p.ask.yrs} yr, ${money(p.ask.aav)}/yr${p.ask.opt ? `, opt-out after ${p.ask.opt}` : ''}</span></div>
+  <div class="speech">${esc(n.msg || (b ? `We have ${m.suit.length} club${m.suit.length > 1 ? 's' : ''} in. Impress me.` : 'Nobody has made a real offer yet. Be the first.'))}</div>
+  <div class="stat"><span>What matters most</span><b>${PRI[m.pri]}</b></div><div class="note">${fit}.${pace}${m.dl ? ` Wants to decide by Week ${m.dl}.` : ''}</div>
+  <div class="stat"><span>Best offer on the table</span><b>${b ? `${tm(b.t)} ${b.o.yrs} yr, ${money(b.o.aav * b.o.yrs)}${b.o.opt ? ' + opt-out' : ''}` : 'None yet'}</b></div>
+  <label class="field">Years <output id="o-y">${n.yrs}</output><input id="n-y" type="range" min="1" max="12" step="1" value="${n.yrs}"></label>
   <label class="field">Per year <output id="o-a">${money(n.aav)}</output><input id="n-a" type="range" min="${Math.max(.8, Math.round(p.ask.aav * .5 * 10) / 10)}" max="${Math.round(p.ask.aav * 1.6 * 10) / 10}" step="0.1" value="${n.aav}"></label>
+  <div class="chips">${[0, 2, 3].map(k => `<button class="chip ${(n.opt || 0) === k ? 'on' : ''}" data-a="nopt" data-k="${k}">${k ? `Opt-out after yr ${k}` : 'No opt-out'}</button>`).join('')}<button class="chip ${n.ntc ? 'on' : ''}" data-a="nntc" aria-pressed="${!!n.ntc}">No-trade clause</button></div>
   <div class="chips"><button class="chip ${n.defer ? '' : 'on'}" data-a="defer" data-k="0">Pay it now</button><button class="chip ${n.defer === .25 ? 'on' : ''}" data-a="defer" data-k="0.25">${ME === 'BOS' ? 'Kick it down Storrow' : 'Kick the can'} (defer 25%)</button></div>
-  <div class="stat"><span>Mood</span><b id="n-v">${vibe}</b></div><div class="stat"><span>Patience</span><b class="pat">${'●'.repeat(Math.max(0, pat))}${'○'.repeat(Math.max(0, 3 - pat))}</b></div><div class="stat"><span>Payroll after signing</span><b id="n-p" style="color:${after > OWNERS[G.owner].cap ? 'var(--bad)' : 'var(--text)'}">${money(after)}</b></div>
+  <div class="stat"><span>Mood</span><b id="n-v">${vibe}</b></div><div class="stat"><span>Deal grade if signed</span><b id="n-g">${gradeTag(dealGrade(p, n))}</b></div><div class="stat"><span>Patience</span><b class="pat">${'●'.repeat(Math.max(0, pat))}${'○'.repeat(Math.max(0, mx - pat))}</b></div><div class="stat"><span>Payroll after signing</span><b id="n-p" style="color:${after > OWNERS[G.owner].cap ? 'var(--bad)' : 'var(--text)'}">${money(after)}</b></div>
+  <p class="note">An opt-out or a no-trade clause makes your offer worth more to the player. Opt-outs can cost you the player early; no-trade clauses mean they can veto trades.</p>
   <div class="row2"><button class="btn go" data-a="offer" ${pat <= 0 ? 'disabled' : ''}>Make offer</button><button class="btn" data-a="close">Hang up</button></div></div>`;
 }
 
@@ -452,11 +471,13 @@ const ACT = {
   sim: e => { UI.queue = { t: 'days', to: Math.min(162, G.day + +e.n) }; step(); }, simTo: e => { UI.queue = { t: 'days', to: +e.n }; step(); },
   stop: () => { UI.queue = null; render(); }, po: () => { poAdvance(); render(); },
   card: e => { UI.relConfirm = null; UI.modal = { t: 'card', id: +e.id }; renderModal(); }, close: () => { UI.modal = null; UI.relConfirm = null; render(); },
-  neg: e => { const p = P(+e.id); if (!p || p.team !== 'FA') return; UI.modal = { t: 'neg', id: p.id, yrs: p.ask.yrs, aav: p.ask.aav, defer: 0, msg: '' }; renderModal(); },
+  neg: e => { const p = P(+e.id); if (!p || p.team !== 'FA') return; UI.modal = { t: 'neg', id: p.id, yrs: p.ask.yrs, aav: p.ask.aav, defer: 0, opt: p.ask.opt || 0, ntc: false, msg: '' }; renderModal(); },
   defer: e => { UI.modal.defer = +e.k; renderModal(); },
+  nopt: e => { UI.modal.opt = +e.k; renderModal(); },
+  nntc: () => { UI.modal.ntc = !UI.modal.ntc; renderModal(); },
   offer: () => {
-    const m = UI.modal, p = P(m.id), r = negotiate(p, { yrs: m.yrs, aav: m.aav, defer: m.defer });
-    if (r.kind === 'signed') { UI.modal = null; toast('Signed!', `${p.name}, ${m.yrs} yr, ${money(m.aav * m.yrs)}`); render(); return; }
+    const m = UI.modal, p = P(m.id), r = negotiate(p, { yrs: m.yrs, aav: m.aav, defer: m.defer, opt: m.opt && m.opt < m.yrs ? m.opt : 0, ntc: m.ntc });
+    if (r.kind === 'signed') { UI.modal = null; toast('Signed!', `${p.name}, ${m.yrs} yr, ${money(m.aav * m.yrs)}. Deal grade: ${r.g}.`); render(); return; }
     m.msg = r.msg; if (r.counter) { m.yrs = r.counter.yrs; m.aav = r.counter.aav; } renderModal();
   },
   ff: e => { UI.ff = e.k; render(); }, tm: e => { UI.tm = e.k; render(); }, aff: e => { const p = P(UI.modal.id), to = moveAff(p, +e.k); if (to) { addNews(`${p.name} reassigned to ${to}.`); toast('Farm move', `${p.name} is headed to ${to}.`); } render(); },
@@ -504,7 +525,7 @@ document.addEventListener('input', ev => {
   if (t.id === 'faq') { UI.faq = t.value; const pos = t.selectionStart; render(); const n = $('#faq'); n.focus(); n.setSelectionRange(pos, pos); }
   if (t.id === 'n-y' || t.id === 'n-a') {
     const m = UI.modal, p = P(m.id); if (t.id === 'n-y') { m.yrs = +t.value; $('#o-y').textContent = m.yrs; } else { m.aav = +t.value; $('#o-a').textContent = money(m.aav); }
-    const s = offerScore(p, m), after = payroll() + m.aav * (1 - m.defer); $('#n-v').textContent = s >= 1 ? 'Agent is leaning in' : s >= .92 ? 'In the ballpark' : s >= .82 ? 'Agent is sighing' : 'Agent is laughing'; const pe = $('#n-p'); pe.textContent = money(after); pe.style.color = after > OWNERS[G.owner].cap ? 'var(--bad)' : 'var(--text)';
+    const s = offerValue(p, m, ME) / needOf(p), after = payroll() + m.aav * (1 - m.defer); $('#n-v').textContent = s >= 1 ? 'Agent is leaning in' : s >= .95 ? 'In the ballpark' : s >= .85 ? 'Agent is sighing' : 'Agent is laughing'; const ng = $('#n-g'); if (ng) ng.innerHTML = gradeTag(dealGrade(p, m)); const pe = $('#n-p'); pe.textContent = money(after); pe.style.color = after > OWNERS[G.owner].cap ? 'var(--bad)' : 'var(--text)';
   }
 });
 document.addEventListener('keydown', ev => {

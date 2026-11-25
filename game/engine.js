@@ -36,11 +36,28 @@ function genRatings(pos, ovr) {
   if (pos === 'SP' || pos === 'RP') return { stf: j(6), ctl: j(6), stm: pos === 'SP' ? j(5) : ri(20, 28) };
   return { con: j(7), pow: j(8), eye: j(7), spd: j(9), fld: j(8) };
 }
-function marketAAV(ovr) { const x = Math.max(ovr - 42, 0); return Math.max(0.8, 0.8 + x * x * 0.055); }
+/* Free agent prices, fit to this winter's real deals and ESPN's top-50 projections:
+   the qualifying offer is $23.15M, Skubal got 9/$450M, Peralta 5/$125M, Rogers 5/$120M,
+   May 3/$52.5M, Stephenson 3/$30M. Everyday regulars (46-48) run $8-11M a year. */
+const QO_AMT = 23.15;
+const AAV_CURVE = [[40, .8], [42, 1.5], [44, 3], [45, 5], [46, 7.5], [47, 10], [48, 11], [50, 12.5], [52, 15], [54, 16.5], [56, 18.5], [58, 20.5], [60, 22], [62, 24], [64, 25.5], [66, 27], [68, 30], [70, 33], [72, 37], [74, 41], [76, 45.5], [78, 50], [80, 55]];
+const RP_CURVE = [[40, .8], [44, 2], [46, 3.5], [48, 7], [50, 10], [52, 11], [54, 12.5], [56, 15], [58, 19], [60, 22.5]];
+function curveAt(c, x) { if (x <= c[0][0]) return c[0][1]; for (let i = 1; i < c.length; i++) if (x <= c[i][0]) { const [a, va] = c[i - 1], [b, vb] = c[i]; return va + (vb - va) * (x - a) / (b - a); } const [lx, lv] = c[c.length - 1]; return lv + (x - lx) * 2.5; }
+function marketAAV(ovr, pos) { return Math.max(0.8, curveAt(pos === 'RP' ? RP_CURVE : AAV_CURVE, ovr)); }
+function askYears(p) {
+  const a = p.age, o = p.ovr;
+  let y = o >= 70 ? (a <= 29 ? 10 : a <= 31 ? 9 : a <= 33 ? 6 : a <= 35 ? 3 : 1)
+    : o >= 62 ? (a <= 28 ? 7 : a <= 30 ? 5 : a <= 33 ? 4 : a <= 36 ? 2 : 1)
+    : o >= 56 ? (a <= 29 ? 5 : a <= 32 ? 4 : a <= 34 ? 3 : a <= 36 ? 2 : 1)
+    : o >= 52 ? (a <= 30 ? 3 : a <= 33 ? 2 : 1)
+    : o >= 48 ? (a <= 31 ? 2 : 1) : 1;
+  if (p.pos === 'RP') y = Math.min(y, o >= 57 ? 4 : o >= 53 ? 3 : 2);
+  if (y > 1 && Math.random() < .25) y += Math.random() < .5 ? 1 : -1;
+  return clamp(y, 1, 12);
+}
 function genAsk(p) {
-  let yrs = p.age <= 28 ? ri(4, 7) : p.age <= 31 ? ri(3, 5) : p.age <= 34 ? ri(1, 3) : 1;
-  if (p.ovr < 50) yrs = Math.min(yrs, 2);
-  return { yrs, aav: Math.round(marketAAV(p.ovr) * rnd(0.9, 1.08) * 10) / 10 };
+  const yrs = askYears(p), aav = Math.round(marketAAV(p.ovr, p.pos) * rnd(.94, 1.06) * (p.age >= 35 && yrs <= 2 ? 1.04 : 1) * 10) / 10;
+  return { yrs, aav, opt: yrs >= 4 && p.ovr >= 58 && Math.random() < .55 ? Math.min(3, yrs - 2) : 0 };
 }
 
 /* ---------- new game ---------- */
@@ -64,7 +81,7 @@ function newGame({ gm = 'Rookie GM', owner = 'steady', team = ME || 'BOS' } = {}
   FA_ROWS.split('\n').forEach(line => {
     const [name, pos, alts, age, b, t, ovr, yrs, total, ex] = line.split('|');
     const o = +ovr;
-    addP(Object.assign({ name, pos, alts: alts ? alts.split(',') : [], age: +age, b, t, ovr: o, pot: o + (age < 28 ? 3 : 0), sal: 0, yrs: 0, team: 'FA', level: 'MLB', ask: { yrs: +yrs, aav: Math.round(total / yrs * 10) / 10 }, exTeam: ex || undefined, exMet: !!ex && ex === ME, heat: Math.max(1, Math.round((o - 42) / 4)) }, genRatings(pos, o)));
+    addP(Object.assign({ name, pos, alts: alts ? alts.split(',') : [], age: +age, b, t, ovr: o, pot: o + (age < 28 ? 3 : 0), sal: 0, yrs: 0, team: 'FA', level: 'MLB', ask: { yrs: +yrs, aav: Math.round(total / yrs * 10) / 10, opt: +yrs >= 4 && o >= 58 ? 2 : 0 }, qo: (typeof QO_DECLINED !== 'undefined' && QO_DECLINED.includes(name)) || undefined, exTeam: ex || undefined, exMet: !!ex && ex === ME, heat: Math.max(1, Math.round((o - 42) / 4)) }, genRatings(pos, o)));
   });
   const nk = x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), ntc = new Set(NTC_FULL.map(nk)), tf = new Set(TEN_FIVE.map(nk)), fa = new Set(SIGNED_WINTER.map(nk));
   Object.values(G.players).forEach(p => { if (p.team === 'FA' || p.level !== 'MLB') return; const k = nk(p.name); if (p.ovr >= 52 && ntc.has(k)) p.ntc = true; if (p.ovr >= 52 && tf.has(k)) p.tenFive = true; if (fa.has(k)) p.fa = 2027; });
@@ -72,6 +89,7 @@ function newGame({ gm = 'Rookie GM', owner = 'steady', team = ME || 'BOS' } = {}
   seedPicks(2027); seedPicks(2028);
   Object.values(G.teams).forEach(t => { const a = aiTotals(t.abbr); t.h0 = a.h; t.p0 = a.p; });
   refreshTeams(); autoLineup(); autoPitching();
+  initMarket(); seedDeals();
   const fin = TEAM_ROWS.filter(r => r[3] === MY_LG && r[4] === MY_DIV).sort((a, b) => b[5] - a[5]).findIndex(r => r[0] === ME) + 1;
   setBack(`NEW SHERIFF IN ${TEAM.city.toUpperCase()}`, `${G.gm} takes over a ${TEAM.w26}-${TEAM.l26} ${TEAM.name} club. Payroll: ${money(payroll())}.`, 'Front office shakeup');
   addNews(`Welcome to ${TEAM.park}. The 2026 ${TEAM.name} went ${TEAM.w26}-${TEAM.l26} and finished ${fin}${['th', 'st', 'nd', 'rd'][fin] || 'th'} in the ${MY_LG} ${MY_DIV}.`);
@@ -422,7 +440,8 @@ function war(p) {
 function startDraft() {
   const mine = G.picks.find(k => k.owner === ME && k.year === G.year && k.rd === 1), any = mine || G.picks.find(k => k.owner === ME && k.year === G.year);
   if (!any) { addNews(`The ${TEAM.name} have no pick in this year's draft. ${VOICE()} is not pleased.`); return; }
-  const qual = any.rd === 'A' ? 60 : any.rd === 'B' ? 56 : any.rd === 1 ? clamp(84 - G.teams[any.orig].w / (G.teams[any.orig].w + G.teams[any.orig].l + 1) * 40, 58, 78) : 54;
+  let qual = any.rd === 'A' ? 60 : any.rd === 'B' ? 56 : any.rd === 1 ? clamp(84 - G.teams[any.orig].w / (G.teams[any.orig].w + G.teams[any.orig].l + 1) * 40, 58, 78) : 54;
+  if (G.qoLost) { qual -= 5 * G.qoLost; G.qoLost = 0; addNews('Signing a free agent who turned down a qualifying offer cost the club its best draft slot.'); }
   const board = []; for (let i = 0; i < 5; i++) { const pos = pick(['SP', 'SS', 'CF', 'C', 'RF', '3B', 'RP', '2B']), age = ri(18, 22), pot = clamp(Math.round(qual + gauss() * 6), 42, 80); board.push({ name: pick(FIRST) + ' ' + pick(LAST), pos, age, pot, ovr: clamp(pot - ri(16, 28), 22, 44), from: pick(HOMETOWNS), est: pot + ri(-5, 5), vibe: pick(['Elite makeup', 'Raw but electric', 'High floor', 'Boom or bust', 'Scout fell in love', 'Polished college bat', 'Plus-plus arm']) }); }
   G.draft = { pick: any.id, rd: any.rd, board };
 }
@@ -432,32 +451,131 @@ function draftPick(i) {
 }
 
 /* ---------- free agency ---------- */
+/* Every free agent has a market. Rival clubs (suitors) make offers that grow as the
+   winter goes on. Each player has a priority (money, winning, years, a role, a big
+   stage, going home) and an agent who is patient or quick. Your offer has to beat the
+   best rival offer as the player sees it, sweeteners included. */
+const WM_WEEK = 3;
+const PRI = { money: 'Top dollar', win: 'A contender', years: 'Long-term security', role: 'An everyday role', stage: 'A big stage', home: 'Going home' };
+const PRI_SHORT = { money: 'Money', win: 'Winning', years: 'Years', role: 'Playing time', stage: 'Big market', home: 'Going home' };
+const AGENTS = [['Ironclad Sports', 'slow'], ['Velvet Rope Group', 'slow'], ['Lefty & Associates', 'fast'], ['Grand Slam Management', 'fast'], ['Northpaw Partners', 'mid'], ['Sunday Best Agency', 'mid'], ['Bluegrass Baseball', 'mid']];
 function freeAgents() { return roster('FA').sort((a, b) => b.ovr - a.ovr); }
-function offerScore(p, o) {
-  const a = p.ask, val = o.aav * o.yrs, want = a.aav * a.yrs;
-  return .6 * (o.aav / a.aav) + .4 * (val / want) + (G.fans - 50) * .0009 + (p.exMet ? .03 : 0) + Math.min(o.yrs - a.yrs, 2) * .012;
+function projWins(a) { return a === ME ? metsRatings().exp : Math.round(81 + ((G.teams[a] || {}).wv || 0)); }
+function wouldStart(p, team) {
+  const r = roster(team).filter(x => x.level === 'MLB' && x.id !== p.id && !x.inj);
+  if (p.pos === 'SP') return r.filter(x => x.pos === 'SP' && x.ovr >= p.ovr).length < 5;
+  if (p.pos === 'RP') return r.filter(x => x.pos === 'RP' && x.ovr >= p.ovr).length < 4;
+  return !r.some(x => !isPit(x) && (x.pos === p.pos || (p.pos === 'DH' && x.pos === '1B')) && x.ovr >= p.ovr);
 }
+function wantFactor(p, team) {
+  const m = p.mkt || {}, w = projWins(team); let f = 1;
+  f += m.pri === 'win' ? clamp((w - 84) * .008, -.07, .08) : clamp((w - 84) * .002, -.02, .02);
+  if (p.exTeam === team) f += m.pri === 'home' ? .08 : .02;
+  if (m.pri === 'stage' && BIG_MARKETS.includes(team)) f += .06;
+  if (m.pri === 'role') f += wouldStart(p, team) ? .05 : -.08;
+  return f;
+}
+function offerValue(p, o, team) {
+  const a = p.ask, pri = (p.mkt || {}).pri, aav = o.aav * (1 - (o.defer || 0) * .35), wA = pri === 'money' ? .75 : pri === 'years' ? .3 : .6;
+  let v = wA * (aav / a.aav) + (1 - wA) * (aav * o.yrs / (a.aav * a.yrs));
+  if (pri === 'years') v += clamp(o.yrs - a.yrs, -2, 2) * .025;
+  if (o.opt) v += a.opt ? .05 : .02; else if (a.opt) v -= .03;
+  if (o.ntc) v += .03;
+  return v * wantFactor(p, team);
+}
+function marketFor(p) {
+  if (!p.ask) p.ask = genAsk(p);
+  const pris = ['money', 'money', 'money', 'win', 'win', 'years', 'role', 'stage'].concat(p.exTeam && G.teams[p.exTeam] ? ['home'] : [], p.age >= 33 ? ['years', 'win'] : []);
+  const ag = AGENTS[(p.id * 7 + p.age * 3) % AGENTS.length], others = Object.keys(G.teams).filter(t => t !== ME);
+  const n = p.ovr >= 47 ? clamp(Math.round((p.ovr - 45) / 3.2 + rnd(-1, 1.2)), 1, 7) : ri(0, 1);
+  const wt = t => Math.max(.3, 1 + (G.teams[t].wv || 0) * .07 + (BIG_MARKETS.includes(t) && p.ovr >= 56 ? 1.3 : 0) + (p.exTeam === t ? .8 : 0) + (wouldStart(p, t) ? 1 : 0));
+  const suit = [];
+  while (suit.length < n) { const pool = others.filter(t => !suit.includes(t)), tot = pool.reduce((s, t) => s + wt(t), 0); let r = Math.random() * tot; suit.push(pool.find(x => (r -= wt(x)) <= 0) || pool[0]); }
+  p.mkt = { pri: pick(pris), agent: ag[0], pace: ag[1], suit, offers: {}, dl: p.ovr >= 58 && Math.random() < .4 ? clamp(G.week + ri(2, 6), 2, G.weeks - 1) : 0 };
+  p.heat = suit.length;
+  rivalBids(p, true);
+}
+function rivalBids(p, first) {
+  const m = p.mkt; if (!m) return;
+  const prog = clamp((G.week - 1) / Math.max(1, G.weeks - 3), 0, 1);
+  m.suit.forEach(t => {
+    if (first && Math.random() < .45) return;
+    const cur = m.offers[t], yrs = clamp(p.ask.yrs + (Math.random() < .3 ? -1 : 0) + (Math.random() < .12 ? 1 : 0), 1, 12);
+    const o = { yrs, aav: Math.round(p.ask.aav * (.8 + prog * .22 + rnd(-.04, .06)) * 10) / 10, opt: p.ask.opt && Math.random() < .5 && yrs > p.ask.opt ? p.ask.opt : 0 };
+    if (!cur || offerValue(p, o, t) > offerValue(p, cur, t)) m.offers[t] = o;
+  });
+  if (!first && p.ovr >= 52 && Math.random() < .22) { const t = pick(Object.keys(G.teams).filter(x => x !== ME && !m.suit.includes(x))); if (t) { m.suit.push(t); m.news = `The ${G.teams[t].name} have joined the bidding for ${p.name}.`; } }
+  if (!first && m.suit.length > 2 && Math.random() < .12) { const t = m.suit.splice(ri(0, m.suit.length - 1), 1)[0]; delete m.offers[t]; }
+  p.heat = m.suit.length;
+}
+function bestRival(p) {
+  const m = p.mkt; let b = null;
+  if (m) Object.entries(m.offers).forEach(([t, o]) => { if (!G.teams[t] || t === ME) return; const v = offerValue(p, o, t); if (!b || v > b.v) b = { t, o, v }; });
+  return b;
+}
+function faDecide(p) {
+  const b = bestRival(p); if (!b) return false;
+  const m = p.mkt, pace = m.pace === 'slow' ? .45 : m.pace === 'fast' ? 1.5 : 1;
+  let prob = clamp((b.v - .9) * 3, 0, .8) * pace + (G.week / G.weeks) * .1;
+  if (G.week === WM_WEEK) prob *= 1.6;
+  if ((m.dl && G.week >= m.dl) || G.week >= G.weeks) prob = 1;
+  if (Math.random() < prob) { aiSign(p, b.t, b.o); return true; }
+  return false;
+}
+function dealGrade(p, o) {
+  let fair = 0, cost = 0;
+  for (let k = 0; k < o.yrs; k++) { const d = Math.pow(1.05, k); fair += marketAAV(projOvr(p, k), p.pos) / d; cost += o.aav * (1 - (o.defer || 0) * .35) / d; }
+  const r = fair / Math.max(cost, .1) - 1 + .03;
+  return r >= .25 ? 'A+' : r >= .15 ? 'A' : r >= .08 ? 'A-' : r >= .02 ? 'B+' : r >= -.04 ? 'B' : r >= -.1 ? 'B-' : r >= -.16 ? 'C+' : r >= -.23 ? 'C' : r >= -.32 ? 'D' : 'F';
+}
+function logDeal(p, team, o, g) {
+  G.deals = G.deals || [];
+  G.deals.unshift({ wk: G.phase === 'offseason' ? G.week : 0, yr: G.year, name: p.name, pos: p.pos, id: p.id, team, yrs: o.yrs, total: Math.round(o.aav * o.yrs * 10) / 10, opt: o.opt || 0, g });
+  if (G.deals.length > 160) G.deals.length = 160;
+}
+function seedDeals() {
+  G.deals = (typeof REAL_DEALS === 'undefined' ? [] : REAL_DEALS).map(([n, t, y, tot, d]) => { const p = Object.values(G.players).find(x => x.name === n && x.team === t); return { wk: 0, date: d, yr: G.year, name: n, pos: p ? p.pos : '', id: p ? p.id : null, team: t, yrs: y, total: tot, opt: 0, g: p ? dealGrade(p, { yrs: y, aav: tot / y }) : 'B', real: true }; });
+}
+function initMarket() { freeAgents().forEach(p => { delete p.mkt; marketFor(p); }); }
+function needOf(p) { const b = bestRival(p); return Math.max(p.neg ? p.neg.bar : 1, b ? b.v + .015 : 0); }
 function negotiate(p, o) {
-  p.neg = p.neg || { patience: 3, bar: rnd(.97, 1.03) };
+  if (!p.mkt) marketFor(p);
+  p.neg = p.neg || { patience: p.mkt.pace === 'slow' ? 2 : 3, bar: rnd(.97, 1.03) };
   if (p.neg.patience <= 0) return { kind: 'walked', msg: 'The agent has stopped taking your calls until next week.' };
-  const s = offerScore(p, o);
-  if (s >= p.neg.bar) { signFA(p, o); return { kind: 'signed' }; }
+  const b = bestRival(p), need = needOf(p), mine = offerValue(p, o, ME);
+  if (mine >= need) return { kind: 'signed', g: signFA(p, o) };
   p.neg.patience--;
-  if (Math.random() < .28 && p.ovr >= 50) { p.ask.aav = Math.round(p.ask.aav * 1.03 * 10) / 10; p.heat = (p.heat || 1) + 1; var rival = pick(Object.keys(G.teams).filter(t => t !== ME)); }
-  if (p.neg.patience <= 0) return { kind: 'walked', msg: `"We're done for now." The agent hung up and is calling ${rival ? G.teams[rival].name : 'someone else'}. Try again next week.` };
-  if (s >= .88) { const c = { yrs: p.ask.yrs, aav: Math.round(((o.aav + p.ask.aav) / 2 + p.ask.aav * .015) * 10) / 10 }; return { kind: 'counter', counter: c, msg: rival ? `A mystery team from ${G.teams[rival].city} just called. We'd do ${c.yrs} years at ${money(c.aav)}.` : `We're close. Make it ${c.yrs} years at ${money(c.aav)} and we can talk.` }; }
-  return { kind: 'insult', msg: pick(['My client laughed so hard a vein appeared.', 'Is this a typo? Please tell me this is a typo.', 'I am going to pretend this call never happened.', 'I have a sandwich that makes more than that.']) };
+  if (b && Math.random() < .3) { b.o.aav = Math.round(b.o.aav * 1.03 * 10) / 10; p.mkt.offers[b.t] = b.o; }
+  const rv = b ? `the ${G.teams[b.t].name}` : 'someone else';
+  if (p.neg.patience <= 0) return { kind: 'walked', msg: `"We're done for now." The agent hung up and is calling ${rv}. Try again next week.` };
+  if (mine >= need * .9) {
+    const yrs = Math.max(o.yrs, p.ask.yrs), base = offerValue(p, Object.assign({}, o, { yrs }), ME), aav = Math.round(o.aav * needOf(p) / base * 1.01 * 10) / 10;
+    return { kind: 'counter', counter: { yrs, aav }, msg: b ? `${b.o.yrs} years from ${rv} is the number to beat. Make it ${yrs} years at ${money(aav)} a year and we have a deal.` : `We're close. Make it ${yrs} years at ${money(aav)} and we can talk.` };
+  }
+  return { kind: 'insult', msg: pick(['My client laughed so hard a vein appeared.', 'Is this a typo? Please tell me this is a typo.', 'I am going to pretend this call never happened.', 'I have a sandwich that makes more than that.', `${b ? 'The ' + G.teams[b.t].name + ' are' : 'Other clubs are'} way past that. Way past.`]) };
 }
 function signFA(p, o) {
-  const defer = o.defer || 0;
+  const defer = o.defer || 0, qo = p.qo;
   p.team = ME; p.yrs = o.yrs; p.sal = Math.round(o.aav * (1 - defer) * 100) / 100; p.ctype = 'g'; if (G.phase === 'offseason') p.fa = G.year; p.level = 'MLB'; p.s = p.s || blankS();
-  const wasMet = p.exMet; delete p.ask; delete p.neg; delete p.heat; delete p.exMet;
+  if (o.opt) p.optYr = G.year + o.opt - 1;
+  if (o.ntc) p.ntc = true;
+  const wasMet = p.exMet, g = dealGrade(p, o); logDeal(p, ME, o, g);
+  delete p.ask; delete p.neg; delete p.heat; delete p.exMet; delete p.mkt; delete p.qo;
   if (defer) { const amt = Math.round(o.aav * defer * 1.08 * 100) / 100; G.dead.push({ label: `${p.name} deferred money`, amt, from: G.year + o.yrs, thru: G.year + o.yrs * 2 - 1 }); award('bonilla'); }
+  if (qo) { G.qoLost = (G.qoLost || 0) + 1; const pl = poolOf(ME); pl.left = Math.max(0, Math.round((pl.left - .5) * 100) / 100); addNews(`${p.name} turned down a qualifying offer, so this signing costs a draft pick and $500K of international pool space.`); }
   award('first_sign');
   const notes = rebalance(); autoAddToLineup(p);
-  headline(p.ovr >= 60 ? 'bigsign' : 'sign', p.name, `${p.name} ${wasMet ? 're-signs' : 'signs'} for ${o.yrs} year${o.yrs > 1 ? 's' : ''}, ${money(o.aav * o.yrs)}${defer ? ' with money kicked down the road' : ''}.`);
-  addNews(`SIGNED: ${p.name}, ${o.yrs}y / ${money(o.aav * o.yrs)}.`); notes.forEach(addNews);
+  headline(p.ovr >= 60 ? 'bigsign' : 'sign', p.name, `${p.name} ${wasMet ? 're-signs' : 'signs'} for ${o.yrs} year${o.yrs > 1 ? 's' : ''}, ${money(o.aav * o.yrs)}${o.opt ? `, with an opt-out after year ${o.opt}` : ''}${defer ? ', with money kicked down the road' : ''}. Deal grade: ${g}.`);
+  addNews(`SIGNED: ${p.name}, ${o.yrs}y / ${money(o.aav * o.yrs)}. Deal grade: ${g}.`); notes.forEach(addNews);
   adj({ fans: clamp((p.ovr - 48) * .6, 0, 9), trust: payroll() > OWNERS[G.owner].cap ? -3 : 0 }); sayRadio('spend');
+  return g;
+}
+function optOut(p) {
+  const left = p.yrs - 1; delete p.optYr;
+  if (left <= 0 || p.age >= 34 || marketAAV(p.ovr, p.pos) < p.sal * 1.08) return false;
+  const old = p.team; p.team = 'FA'; p.yrs = 0; p.sal = 0; p.exTeam = old; p.exMet = old === ME; p.level = 'MLB'; p.s = undefined; p.ask = genAsk(p); delete p.mkt;
+  addNews(`${p.name} opts out of the last ${left} year${left > 1 ? 's' : ''} with the ${G.teams[old].name} and is a free agent again.`);
+  return true;
 }
 function autoAddToLineup(p) {
   if (isPit(p)) { if (p.pos === 'SP') { const w = G.rotation.map(P).sort((a, b) => a.ovr - b.ovr)[0]; if (w && p.ovr > w.ovr && !G.rotation.includes(p.id)) { G.bullpen = G.bullpen.filter(x => x !== p.id); G.rotation[G.rotation.indexOf(w.id)] = p.id; G.bullpen.push(w.id); } } return; }
@@ -466,25 +584,40 @@ function autoAddToLineup(p) {
   if (best) best.id = p.id;
 }
 function faWeek() {
-  const fa = freeAgents();
-  fa.forEach(p => {
+  const seen = [];
+  freeAgents().forEach(p => {
     if (p.neg) delete p.neg;
-    p.heat = clamp((p.heat || 1) + ri(-1, 1), 0, 9);
-    if (G.week > 4 && p.ask) p.ask.aav = Math.max(.8, Math.round(p.ask.aav * .975 * 10) / 10);
-    if (Math.random() < .05 + (p.ovr >= 58 ? .05 : 0) + G.week * .012) aiSign(p);
+    if (!p.ask) p.ask = genAsk(p);
+    if (!p.mkt) marketFor(p);
+    if (G.week > 4) p.ask.aav = Math.max(.8, Math.round(p.ask.aav * .975 * 10) / 10);
+    rivalBids(p);
+    if (p.mkt.news) { seen.push(p.mkt.news); delete p.mkt.news; }
+    if (p.mkt.suit.length && p.ovr >= 47) faDecide(p);
+    else if (Math.random() < .05 + G.week * .012) aiSign(p);
   });
+  rumors(seen);
 }
-function aiSign(p) {
-  const teams = Object.values(G.teams).filter(t => t.abbr !== ME), w = teams.map(t => Math.max(1, 25 + t.wv + rnd(0, 18))), tot = w.reduce((a, b) => a + b, 0);
-  let r = Math.random() * tot, t = teams[0]; for (let i = 0; i < teams.length; i++) { r -= w[i]; if (r <= 0) { t = teams[i]; break; } }
-  const a = p.ask || genAsk(p); p.team = t.abbr; p.sal = a.aav; p.yrs = a.yrs; p.ctype = 'g'; if (G.phase === 'offseason') p.fa = G.year; delete p.ask; delete p.neg; delete p.heat; delete p.exMet;
-  if (p.ovr >= 52) addNews(`${p.name} signs with the ${t.name}: ${a.yrs}y / ${money(a.aav * a.yrs)}.`);
+function rumors(seen) {
+  const top = freeAgents().filter(p => p.mkt && p.ovr >= 54).slice(0, 12), lines = seen.slice(0, 2);
+  const p = top.length ? pick(top) : null, b = p && bestRival(p);
+  if (b) lines.push(pick([`Rumor mill: the ${G.teams[b.t].name} are in the ${b.o.yrs}-year range for ${p.name}.`, `Sources: ${p.name} has ${p.mkt.suit.length} serious suitor${p.mkt.suit.length > 1 ? 's' : ''}, led by the ${G.teams[b.t].name}.`, `${p.name}'s camp is "listening to everyone." The ${G.teams[b.t].name} are believed to be the favorite.`]));
+  const dl = top.find(x => x.mkt.dl === G.week + 1); if (dl) lines.push(`${dl.name} wants to pick a team by next week.`);
+  lines.forEach(addNews);
+}
+function aiSign(p, team, o) {
+  if (!team) { const teams = Object.values(G.teams).filter(t => t.abbr !== ME), w = teams.map(t => Math.max(1, 25 + t.wv + rnd(0, 18))), tot = w.reduce((a, b) => a + b, 0); let r = Math.random() * tot; team = teams[0].abbr; for (let i = 0; i < teams.length; i++) { r -= w[i]; if (r <= 0) { team = teams[i].abbr; break; } } }
+  const a = o || p.ask || genAsk(p), t = G.teams[team];
+  p.team = team; p.sal = a.aav; p.yrs = a.yrs; p.ctype = 'g'; if (G.phase === 'offseason') p.fa = G.year; if (a.opt) p.optYr = G.year + a.opt - 1;
+  const g = dealGrade(p, a); logDeal(p, team, a, g);
+  delete p.ask; delete p.neg; delete p.heat; delete p.exMet; delete p.mkt; delete p.qo;
+  if (p.ovr >= 52) addNews(`${p.name} signs with the ${t.name}: ${a.yrs}y / ${money(a.aav * a.yrs)}${a.opt ? `, opt-out after ${a.opt}` : ''}. Grade: ${g}.`);
 }
 function advanceWeek() {
   if (G.phase !== 'offseason') return;
   faWeek(); refreshTeams();
   if (G.week >= G.weeks) return startSeason();
   G.week++;
+  if (G.week === WM_WEEK) { setBack('WINTER MEETINGS', `Every GM in baseball is in one hotel lobby. Expect a flurry of signings this week.`, 'Hot stove'); addNews('The Winter Meetings are here. Free agents are signing faster this week.'); }
   if (G.week === 3 && G.r5Done !== G.year - 1) rule5Draft();
   if (G.year === 2027 && G.week === 2) { addNews(`The CBA expired on Dec. 1. In this universe, both sides settled on a napkin at a ${TEAM.city} pizza joint.`); setBack('LOCKOUT AVERTED BY PIZZA', `Owners and players reach a deal over a large cheese in ${TEAM.city}.`, 'Labor news'); }
   maybePhone(.45); maybeOffer(.5); sayRadio(); if (Math.random() < .25) aiDeal();
@@ -502,7 +635,7 @@ const warOf = (p, o) => Math.max(0, o - 44) * (p.pos === 'RP' ? .1 : .25);
 function salaryIn(p, k, retain) {
   if (k === 0 || p.ctype === 'g') return p.sal * (1 - retain);
   const left = p.yrs - k; if (left > 3) return Math.max(.8, p.sal) * (1 - retain);
-  return Math.max(p.sal, marketAAV(projOvr(p, k)) * (left >= 3 ? .25 : left === 2 ? .42 : .65)) * (1 - retain);
+  return Math.max(p.sal, marketAAV(projOvr(p, k), p.pos) * (left >= 3 ? .25 : left === 2 ? .42 : .65)) * (1 - retain);
 }
 function prospectVal(p) {
   const fv = (p.pot + 1) / 1.2; let i = 0; while (i < FV_TABLE.length - 2 && fv > FV_TABLE[i + 1][0]) i++;
@@ -753,11 +886,12 @@ function beginOffseason() {
   const expiring = [];
   Object.values(G.players).forEach(p => {
     progress(p); p.inj = null;
+    if (p.optYr && p.optYr < G.year && p.team !== 'FA' && p.level !== 'FARM' && optOut(p)) { if (p.exMet) expiring.push(p); return; }
     if (p.team === 'FA') { if (p.age >= 38 || p.ovr < 40 || Math.random() < .2) delete G.players[p.id]; else { p.ask = genAsk(p); p.heat = ri(0, 4); } return; }
     if (p.level === 'FARM') { p.yrs--; if (p.yrs <= 0) { if (p.age >= 30 || (p.pot < 44 && p.age >= 25)) { delete G.players[p.id]; return; } p.yrs = p.age <= 23 ? 3 : 1; } return; }
     p.yrs--;
     if (p.ctype === 'pre' && p.yrs <= 3) { p.ctype = 'arb'; }
-    if (p.ctype === 'arb' && p.yrs > 0) p.sal = Math.round(Math.max(p.sal, marketAAV(p.ovr) * (p.yrs >= 3 ? .25 : p.yrs === 2 ? .42 : .65)) * 100) / 100;
+    if (p.ctype === 'arb' && p.yrs > 0) p.sal = Math.round(Math.max(p.sal, marketAAV(p.ovr, p.pos) * (p.yrs >= 3 ? .25 : p.yrs === 2 ? .42 : .65)) * 100) / 100;
     if (p.yrs <= 0) {
       if (p.age >= 40 || (p.age >= 37 && p.ovr < 48)) { addNews(`${p.name} retires after a fine career.`); delete G.players[p.id]; return; }
       if (p.team === ME) { expiring.push(p); p.team = 'FA'; p.exMet = true; p.ask = genAsk(p); p.ask.aav = Math.round(p.ask.aav * .95 * 10) / 10; p.heat = ri(1, 5); p.s = undefined; p.level = 'MLB'; }
@@ -773,6 +907,7 @@ function beginOffseason() {
   const notes = rebalance(); repair(); autoLineup(); autoPitching(); refreshTeams();
   if (expiring.length) addNews(`Expiring deals: ${expiring.slice(0, 5).map(p => p.name).join(', ')}${expiring.length > 5 ? ' and more' : ''} hit the market. They give the ${TEAM.name} a hometown discount.`);
   notes.slice(0, 2).forEach(addNews);
+  G.deals = []; initMarket();
   setBack('THE HOT STOVE IS ON', `Free agency opens for ${G.year}. The phones are ringing at ${TEAM.park}.`, 'Offseason');
   maybePhone(.5); sayRadio();
 }
